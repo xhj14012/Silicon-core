@@ -61,7 +61,7 @@ struct Part {
 		} else if (quality_s == "impurity") {
 			quality = 1;
 		} else {
-			quality = -1;
+			quality = 0;
 		}
 		cin >> length;
 		cin >> matrix;
@@ -136,7 +136,7 @@ vector<Part> calc4(vector<Part> v, int if_cut) {
 		}
 	}
 	Part v0, v1, v2;
-	while (cut_num) {
+	while (cut_num > 0) {
 		if (v.size() < 4) {
 			break;
 		}
@@ -210,7 +210,7 @@ vector<Part> calc3(vector<Part> v, int if_cut) {
 		}
 	}
 	Part v0, v1;
-	while (cut_num) {
+	while (cut_num > 0) {
 		if (v.size() < 3) {
 			break;
 		}
@@ -661,9 +661,10 @@ vector<Part> calc3(vector<Part> v) {
 	// }
 	return result;
 }
+int rest_cnt, used_cnt;
 void report(vector<Part> a) {
-	int rest_cnt = 0;
-	int used_cnt = 0;
+	rest_cnt = 0;
+	used_cnt = 0;
 	printf("|—--------------—--------------—--------------—--------------\n");
 	printf("厂家\t\t\t锭号\t\t棒号\t\t杂质情况\t  长度\t   分组\t  切割状况\n");
 	sort(a.begin(), a.end(), cmp_group);
@@ -702,16 +703,16 @@ void report(vector<Part> a) {
 	printf("总数 = %d\n", used_cnt + rest_cnt);
 	printf("匹配率 = %.2f%%\n", 1.0 * used_cnt / (used_cnt + rest_cnt) * 100);
 	if (max_cut_num > 0) {
-		printf("最大切割数 %d\n", max_cut_num);
-		printf("实际切割数 %d\n", max_cut_num - cut_num);
+		printf("最大截断刀数 %d\n", max_cut_num);
+		printf("实际截断刀数 %d\n", max_cut_num - cut_num);
 	}
 
 }
 vector<Part> calc(vector<Part> db, int if_cut = 0) {
 	db = calc3_op(db);
 	db = calc4_op(db);
-	db = calc3(db);
-	db = calc4(db);
+	//db = calc3(db);
+	//db = calc4(db);
 	if (if_cut) {
 		db = calc3(db, 1);
 		db = calc4(db, 1);
@@ -805,20 +806,30 @@ void select(vector<Part> db, int mod) {
 		mod3 = mg(mod3, bt_b_1);
 		mod3 = mg(mod3, bt_c_1);
 		result = calc(mod3);
-	} else if (mod == 4) {
+	} else if (mod == -1) {
 		result = calc(db);
-	} else if (mod == 5) {
+	} else if (mod == -2) {
 		result = calc(db, 1);
+	} else if (mod == 4) {
+		vector<Part> mod4; mod4.clear();
+		mod4 = mg(mod4, yh_a_1);
+		mod4 = mg(mod4, yh_b_1);
+		mod4 = mg(mod4, yh_c_1);
+		mod4 = mg(mod4, bt_a_1);
+		mod4 = mg(mod4, bt_b_1);
+		mod4 = mg(mod4, bt_c_1);
+		result = calc(mod4, 1);
 	}
 	report(result);
-	fstream fout("core.log", ios::out);
-	fout.close();
+	// fstream fout("core.log", ios::out);
+	// fout.close();
 }
 void gao() {
-	max_cut_num = 0;
+	//max_cut_num = 20;
+	cut_num = max_cut_num = 0;
 	int mod;
 	cin >> mod;
-	if (mod == 5) {
+	if (mod == -2 || mod == 4) {
 		cin >> max_cut_num;
 		cut_num = max_cut_num;
 	}
@@ -828,7 +839,7 @@ void gao() {
 	while (!cin.eof()) {
 		Part t;
 		t.input();
-		if (t.quality == -1) continue;
+		//if (t.quality == -1) continue;
 		db.push_back(t);
 	}
 	select(db, mod);
@@ -838,8 +849,9 @@ void gao() {
 }
 
 int main(int argc, char const *argv[]) {
-	freopen("data300.dat", "r", stdin);
+	freopen("data-540.dat", "r", stdin);
 	freopen("result.dat", "w", stdout);
 	gao();
+	cout << "EOF"<< endl;
 	return 0;
 }
