@@ -44,6 +44,7 @@ PIIII mp(int a, int b, int c, int d = 0) {
 }
 int cnt = 0;
 int tot;
+int cut_num;
 vector<string> factory_cant_mix;
 struct Part {
 	void input() {
@@ -124,7 +125,7 @@ int check(int val) {
 // 	}
 // }
 //
-vector<Part> calc3(vector<Part> v, int cut_num) {
+vector<Part> calc3(vector<Part> v, int if_cut) {
 
 	vector<Part> result;
 	result.clear();
@@ -139,69 +140,48 @@ vector<Part> calc3(vector<Part> v, int cut_num) {
 			++it;
 		}
 	}
-	sort(v.begin(), v.end(), cmp_length);
-	reverse(v.begin(), v.end());
-	vector<Part> rest;
-	rest.clear();
-	int restcnt[500];//基排
-	memset(restcnt, 0, sizeof restcnt);
 	Part v0, v1;
-	bool flag;
 	while (cut_num) {
-		if (v.size() <= 1) {
+		if (v.size() <= 3) {
 			break;
 		}
-		flag = true;
+		sort(v.begin(), v.end(), cmp_length);
+		reverse(v.begin(), v.end());
 		v0 = v[0]; v1 = v[1];
 		v.erase(v.begin());
 		v.erase(v.begin());
 		int add = v0.length + v1.length;
 		int need = minlen - add;
-		for (int i = need; i <= need + 10; ++i) {
-			if (restcnt[i] >= 1) {
-				restcnt[i]--;
-				for (std::vector<Part>::iterator it = rest.begin(); it != rest.end(); ++it) {
-					if (it->length == i) {
-						cnt++;
-						it->group = cnt;
-						result.pb(*it);
-						rest.erase(it);
-						v0.group = cnt;
-						v1.group = cnt;
-						result.pb(v0);
-						result.pb(v1);
-						flag = false;
-						break;
-					}
-				}
-				break;
-			}
-		}
-		if (flag == false) continue;
 		for (std::vector<Part>::iterator it = v.end(); it != v.begin(); --it) {
-			if (it->length >= need) {
+			if (check(it->length + add) == 1) {
+				cnt++;
+				v0.group = cnt;
+				v1.group = cnt;
+				it->group = cnt;
+				result.pb(*it);
+				break;
+
+			} else if (check(it->length + add) == 0) {
 				cnt++;
 				cut_num--;
 				v0.group = cnt;
 				v1.group = cnt;
 				it->cut = 1;
 				int tmp = it->length - need;
-				restcnt[tmp]++;
 				it->length = tmp;
-				rest.pb(*it);
+				//rest.pb(*it);
 				it->length = need;
 				it->group = cnt;
+
 				result.pb(*it);
-				v.erase(it);
+				it->length = tmp;
+				it->group = 0;
+				//v.erase(it);
 				break;
 			}
 		}
 		result.pb(v0);
 		result.pb(v1);
-	}
-
-	for (int p = 0; p < rest.size(); ++p) {
-		result.pb(rest[p]);
 	}
 	for (int p = 0; p < v.size(); ++p) {
 		result.pb(v[p]);
@@ -437,17 +417,20 @@ void gao() {
 	}
 	cnt = 0;
 	tot = 0;
+	cut_num = 100;
 	//a = calc3(a);
 	//report(a);
 	//a = calc4(a);
 	//report(a);
 	a = calc3(a, 1);
-	report(a);
+	//report(a);
+	//a = calc4(a, 1);
+	//report(a);
 }
 
 int main(int argc, char const *argv[]) {
 	//freopen("data.dat", "r", stdin);
-	freopen("test.dat", "r", stdin);
+	freopen("test3.dat", "r", stdin);
 	freopen("test.out", "w", stdout);
 	//ifstream infile;
 	//infile.open("data.dat",ios::in);
