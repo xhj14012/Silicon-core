@@ -28,8 +28,8 @@
 #define PIIII pair <int,PIII>
 using namespace std;
 char title[100];
-const int minlen = 685;
-const int maxlen = 695;
+const int min_len = 685;
+const int max_len = 695;
 #define fi first
 #define se second.first
 //#define th second.second
@@ -46,7 +46,7 @@ int cnt = 0;
 int tot;
 int rest_cut_num, max_cut_num;
 //vector<string> factory_cant_mix;
-struct Part {
+struct Silicon {
 	void input() {
 		id = tot++;
 		scanf("%s", factory);
@@ -78,32 +78,32 @@ struct Part {
 	int matrix;
 	int group;//拼接方案组号
 	int cut;
-	// bool  operator < (const Part &a)const {
+	// bool  operator < (const Silicon &a)const {
 	// 	return length < a.length;
 	// }
 };
 
-bool cmp_length(const Part a, const Part b) {
+bool cmp_length(const Silicon a, const Silicon b) {
 	return a.length < b.length;
 }
-bool cmp_group(const Part a, const Part b) {
+bool cmp_group(const Silicon a, const Silicon b) {
 	return a.group < b.group;
 }
-bool cmp_id(const Part a, const Part b) {
+bool cmp_id(const Silicon a, const Silicon b) {
 	return a.id < b.id;
 }
 
 
 int check(int val) {
-	if (val < minlen) return -1;
-	else if (val >= minlen && val <= maxlen) return 1;
-	return 0;//else if (val > maxlen)
+	if (val < min_len) return -1;
+	else if (val >= min_len && val <= max_len) return 1;
+	return 0;//else if (val > max_len)
 }
 
-vector<Part> calc4(vector<Part> v, int if_cut) {
-	vector<Part> result;
+vector<Silicon> calc4(vector<Silicon> v, int if_cut) {
+	vector<Silicon> result;
 	result.clear();
-	for (std::vector<Part>::iterator it = v.begin(); it != v.end();) {
+	for (std::vector<Silicon>::iterator it = v.begin(); it != v.end();) {
 		if (it->group > 0) {
 			result.pb(*it);
 			it = v.erase(it);
@@ -114,7 +114,7 @@ vector<Part> calc4(vector<Part> v, int if_cut) {
 			++it;
 		}
 	}
-	Part v0, v1, v2;
+	Silicon v0, v1, v2;
 	while (rest_cut_num > 0) {
 		if (v.size() < 4) {
 			break;
@@ -126,10 +126,10 @@ vector<Part> calc4(vector<Part> v, int if_cut) {
 		v.erase(v.begin());
 		v.erase(v.begin());
 		int add = v0.length + v1.length + v2.length;
-		//if (add > maxlen) cout << "debug";
-		int need = minlen - add;
+		//if (add > max_len) cout << "debug";
+		int need = min_len - add;
 
-		for (std::vector<Part>::iterator it = v.end(); it != v.begin();) {
+		for (std::vector<Silicon>::iterator it = v.end(); it != v.begin();) {
 			--it;
 			if (check(it->length + add) == 1) {
 				cnt++;
@@ -173,11 +173,11 @@ vector<Part> calc4(vector<Part> v, int if_cut) {
 	// }
 	return result;
 }
-vector<Part> calc3(vector<Part> v, int if_cut) {
+vector<Silicon> calc3(vector<Silicon> v, int if_cut) {
 
-	vector<Part> result;
+	vector<Silicon> result;
 	result.clear();
-	for (std::vector<Part>::iterator it = v.begin(); it != v.end();) {
+	for (std::vector<Silicon>::iterator it = v.begin(); it != v.end();) {
 		if (it->group > 0) {
 			result.pb(*it);
 			it = v.erase(it);
@@ -188,7 +188,7 @@ vector<Part> calc3(vector<Part> v, int if_cut) {
 			++it;
 		}
 	}
-	Part v0, v1;
+	Silicon v0, v1;
 	while (rest_cut_num > 0) {
 		if (v.size() < 3) {
 			break;
@@ -199,8 +199,8 @@ vector<Part> calc3(vector<Part> v, int if_cut) {
 		v.erase(v.begin());
 		v.erase(v.begin());
 		int add = v0.length + v1.length;
-		int need = minlen - add;
-		for (std::vector<Part>::iterator it = v.end(); it != v.begin();) {
+		int need = min_len - add;
+		for (std::vector<Silicon>::iterator it = v.end(); it != v.begin();) {
 			--it;
 			if (check(it->length + add) == 1) {
 				cnt++;
@@ -244,11 +244,11 @@ vector<Part> calc3(vector<Part> v, int if_cut) {
 	// }
 	return result;
 }
-vector<Part> calc4_op(vector<Part> v) {
+vector<Silicon> calc4_op(vector<Silicon> v) {
 
-	vector<Part> result;
+	vector<Silicon> result;
 	result.clear();
-	for (std::vector<Part>::iterator it = v.begin(); it != v.end();) {
+	for (std::vector<Silicon>::iterator it = v.begin(); it != v.end();) {
 		if (it->group > 0) {
 			result.pb(*it);
 			it = v.erase(it);
@@ -260,7 +260,7 @@ vector<Part> calc4_op(vector<Part> v) {
 		}
 	}
 	sort(v.begin(), v.end(), cmp_length);
-	// for (std::vector<Part>::iterator it = v.begin(); it != v.end(); ++it) {
+	// for (std::vector<Silicon>::iterator it = v.begin(); it != v.end(); ++it) {
 	// 	it->output();
 	// }
 	//vector<PIII> comb;
@@ -285,8 +285,8 @@ vector<Part> calc4_op(vector<Part> v) {
 			//comb_erase(p);
 		} else {
 			vector<PIIII>::iterator mit, it_low, it_upper;
-			it_low = lower_bound(comb.begin(), comb.end(), mp(minlen - v[p].length, 0, 0, 0));
-			it_upper = upper_bound(comb.begin(), comb.end(), mp(maxlen - v[p].length + 1, 0, 0, 0));
+			it_low = lower_bound(comb.begin(), comb.end(), mp(min_len - v[p].length, 0, 0, 0));
+			it_upper = upper_bound(comb.begin(), comb.end(), mp(max_len - v[p].length + 1, 0, 0, 0));
 			--it_upper;
 			mit = comb.end();
 			if (it_low != comb.end()) {
@@ -340,10 +340,10 @@ vector<Part> calc4_op(vector<Part> v) {
 	// }
 	return result;
 }
-vector<Part> calc3_op(vector<Part> v) {
-	vector<Part> result;
+vector<Silicon> calc3_op(vector<Silicon> v) {
+	vector<Silicon> result;
 	result.clear();
-	for (std::vector<Part>::iterator it = v.begin(); it != v.end();) {
+	for (std::vector<Silicon>::iterator it = v.begin(); it != v.end();) {
 		if (it->group > 0) {
 			result.pb(*it);
 			it = v.erase(it);
@@ -375,8 +375,8 @@ vector<Part> calc3_op(vector<Part> v) {
 			//comb_erase(p);
 		} else {
 			vector<PIIII>::iterator mit, it_low, it_upper;
-			it_low = lower_bound(comb.begin(), comb.end(), mp(minlen - v[p].length, 0, 0));
-			it_upper = upper_bound(comb.begin(), comb.end(), mp(maxlen - v[p].length + 1, 0, 0));
+			it_low = lower_bound(comb.begin(), comb.end(), mp(min_len - v[p].length, 0, 0));
+			it_upper = upper_bound(comb.begin(), comb.end(), mp(max_len - v[p].length + 1, 0, 0));
 			--it_upper;
 			// if(it_low==it_upper) {
 			// 	v[p].group = -1;
@@ -442,11 +442,11 @@ vector<Part> calc3_op(vector<Part> v) {
 	// }
 	return result;
 }
-vector<Part> calc4(vector<Part> v) {
+vector<Silicon> calc4(vector<Silicon> v) {
 
-	vector<Part> result;
+	vector<Silicon> result;
 	result.clear();
-	for (std::vector<Part>::iterator it = v.begin(); it != v.end();) {
+	for (std::vector<Silicon>::iterator it = v.begin(); it != v.end();) {
 		if (it->group > 0) {
 			result.pb(*it);
 			it = v.erase(it);
@@ -458,7 +458,7 @@ vector<Part> calc4(vector<Part> v) {
 		}
 	}
 	sort(v.begin(), v.end(), cmp_length);
-	// for (std::vector<Part>::iterator it = v.begin(); it != v.end(); ++it) {
+	// for (std::vector<Silicon>::iterator it = v.begin(); it != v.end(); ++it) {
 	// 	it->output();
 	// }
 	//vector<PIII> comb;
@@ -483,8 +483,8 @@ vector<Part> calc4(vector<Part> v) {
 			//comb_erase(p);
 		} else {
 			vector<PIIII>::iterator mit, it_low, it_upper;
-			it_low = lower_bound(comb.begin(), comb.end(), mp(minlen - v[p].length, 0, 0, 0));
-			it_upper = upper_bound(comb.begin(), comb.end(), mp(maxlen - v[p].length + 1, 0, 0, 0));
+			it_low = lower_bound(comb.begin(), comb.end(), mp(min_len - v[p].length, 0, 0, 0));
+			it_upper = upper_bound(comb.begin(), comb.end(), mp(max_len - v[p].length + 1, 0, 0, 0));
 			--it_upper;
 			mit = comb.end();
 			if (it_low != comb.end()) {
@@ -538,10 +538,10 @@ vector<Part> calc4(vector<Part> v) {
 	// }
 	return result;
 }
-vector<Part> calc3(vector<Part> v) {
-	vector<Part> result;
+vector<Silicon> calc3(vector<Silicon> v) {
+	vector<Silicon> result;
 	result.clear();
-	for (std::vector<Part>::iterator it = v.begin(); it != v.end();) {
+	for (std::vector<Silicon>::iterator it = v.begin(); it != v.end();) {
 		if (it->group > 0) {
 			result.pb(*it);
 			it = v.erase(it);
@@ -573,8 +573,8 @@ vector<Part> calc3(vector<Part> v) {
 			//comb_erase(p);
 		} else {
 			vector<PIIII>::iterator mit, it_low, it_upper;
-			it_low = lower_bound(comb.begin(), comb.end(), mp(minlen - v[p].length, 0, 0));
-			it_upper = upper_bound(comb.begin(), comb.end(), mp(maxlen - v[p].length + 1, 0, 0));
+			it_low = lower_bound(comb.begin(), comb.end(), mp(min_len - v[p].length, 0, 0));
+			it_upper = upper_bound(comb.begin(), comb.end(), mp(max_len - v[p].length + 1, 0, 0));
 			--it_upper;
 			// if(it_low==it_upper) {
 			// 	v[p].group = -1;
@@ -641,13 +641,13 @@ vector<Part> calc3(vector<Part> v) {
 	return result;
 }
 int rest_cnt, used_cnt;
-void report(vector<Part> a) {
+void report(vector<Silicon> a) {
 	rest_cnt = 0;
 	used_cnt = 0;
 	printf("|—--------------—--------------—--------------—--------------\n");
 	printf("+厂家\t\t+锭号\t\t+棒号\t\t+杂质情况\t+长度\t\t+分组\t\t+切割状况\n");
 	sort(a.begin(), a.end(), cmp_group);
-	for (std::vector<Part>::iterator it = a.begin(); it != a.end();) {
+	for (std::vector<Silicon>::iterator it = a.begin(); it != a.end();) {
 		if (it->group <= 0) {
 			it->output();
 			rest_cnt++;
@@ -687,7 +687,7 @@ void report(vector<Part> a) {
 	}
 
 }
-vector<Part> calc(vector<Part> db, int if_cut = 0) {
+vector<Silicon> calc(vector<Silicon> db, int if_cut = 0) {
 	db = calc3_op(db);
 	db = calc4_op(db);
 	//db = calc3(db);
@@ -698,7 +698,7 @@ vector<Part> calc(vector<Part> db, int if_cut = 0) {
 	}
 	return db;
 }
-vector<Part> mg(vector<Part> a, vector<Part> b) {
+vector<Silicon> mg(vector<Silicon> a, vector<Silicon> b) {
 	int size = b.size();
 	for (int i = 0; i < size; ++i) {
 		a.pb(b[i]);
@@ -710,12 +710,12 @@ void gao() {
 	scanf("%d", &max_cut_num);
 	cnt = 0;
 	rest_cut_num = max_cut_num;
-	vector<Part> result;
+	vector<Silicon> result;
 	result.clear();
 	while (~scanf("%d", &n)) {
-		vector<Part>db; db.clear();
+		vector<Silicon>db; db.clear();
 		for (int i = 0; i < n; ++i) {
-			Part t;
+			Silicon t;
 			t.input();
 			db.pb(t);
 		}
@@ -725,8 +725,8 @@ void gao() {
 }
 
 int main(int argc, char const *argv[]) {
-	freopen("data.dat", "r", stdin);
-	//freopen("data-mod1.dat", "r", stdin);
+	//freopen("data.dat", "r", stdin);
+	freopen("data-mod1.dat", "r", stdin);
 	//freopen("data-mod2.dat", "r", stdin);
 	//freopen("data-mod3.dat", "r", stdin);
 	//freopen("data-540.dat", "r", stdin);
