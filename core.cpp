@@ -92,11 +92,11 @@ int check(int val) {
 PIII mpiii(int a, int b, int c) {
 	return mp(a, mp(b, c));
 }
-vector<PIII> comb;
-void comb_erase(int p) {
-	for (std::vector<PIII>::iterator it = comb.begin(); it != comb.end();) {
+vector<PIII> comb3;
+void comb3_erase(int p) {
+	for (std::vector<PIII>::iterator it = comb3.begin(); it != comb3.end();) {
 		if (it->se == p || it->th == p) {
-			it = comb.erase(it);
+			it = comb3.erase(it);
 		} else {
 			++it;
 		}
@@ -120,46 +120,45 @@ vector<Part> calc3(vector<Part> v, bool if_cut = 0) {
 	// for (std::vector<Part>::iterator it = v.begin(); it != v.end(); ++it) {
 	// 	it->output();
 	// }
-	//vector<PIII> comb;
-	comb.clear();
+	//vector<PIII> comb3;
+	comb3.clear();
 	int size = v.size();
 	for (int i = 1; i < size; ++i) { //组对(i+j,i,j)
 		for (int j = 0; j < i; ++j) {
-			comb.pb(mpiii(v[i].length + v[j].length, i, j));
+			comb3.pb(mpiii(v[i].length + v[j].length, i, j));
 		}
 	}
-	sort(comb.begin(), comb.end());
-	//reverse(comb.begin(),comb.end());
+	sort(comb3.begin(), comb3.end());
+	//reverse(comb3.begin(),comb3.end());
 	for (int p = v.size() - 1; p >= 0; --p) {
-		if (comb.size() == 0) break;
-		comb_erase(p);
+		//if (comb3.size() == 0) break;
+		//comb3_erase(p);
 		if (v[p].index != 0) {
 			continue;
 			//result.pb(v[p]);
-			//comb_erase(p);
+			//comb3_erase(p);
 		} else {
-			vector<PIII>::iterator it[12];
-			for (int k = 0; k < 11; ++k) {
-				it[k] = lower_bound(comb.begin(), comb.end(), mpiii(minlen - v[p].length + k, 0, 0));
-				if (it[k]->fi != minlen - v[p].length + k) {
-					it[k] = comb.end();
-				}
-			}
-			vector<PIII>::iterator mit = comb.end();
-			for (int k = 0; k < 11; ++k) {
-				if (it[k] != comb.end() && it[k]->se != p && it[k]->th != p) {
-					if (mit == comb.end()) {
-						mit = it[k];
-					}
-					if (it[k]->se > mit->se) {//调优点，无法接受状压
-						mit = it[k];
+			vector<PIII>::iterator mit, it_low, it_upper;
+			it_low = lower_bound(comb3.begin(), comb3.end(), mpiii(minlen - v[p].length, 0, 0));
+			it_upper = upper_bound(comb3.begin(), comb3.end(), mpiii(maxlen - v[p].length + 1, 0, 0));
+			--it_upper;
+			mit = comb3.end();
+			if (it_low != comb3.end()) {
+				for (std::vector<PIII>::iterator it = it_low; it!=it_upper&&it != comb3.end(); ++it) {
+					if (v[it->se].index == 0 && v[it->th].index == 0) {
+						if (mit == comb3.end() || it->se < mit->se) { //启发式剪枝，调优点
+							mit = it;
+						}
 					}
 				}
 			}
-			if (mit == comb.end()) {
+			if (check(mit->fi + v[p].length) != 1) {
+				mit = comb3.end();
+			}
+			if (mit == comb3.end()) {
 				v[p].index = -1;
 				//result.pb(v[p]);
-				comb_erase(p);
+				//comb3_erase(p);
 			} else {
 				cnt++;
 				v[p].index = cnt;
@@ -168,19 +167,19 @@ vector<Part> calc3(vector<Part> v, bool if_cut = 0) {
 				// result.pb(v[p]);
 				// result.pb(v[mit->se]);
 				// result.pb(v[mit->th]);
-				int t1=mit->se;
-				int t2=mit->th;
-				comb_erase(p);
-				//comb_erase(mit->se);//坑！
-				//comb_erase(mit->th);
-				comb_erase(t1);
-				comb_erase(t2);
+				//int t1 = mit->se;
+				//int t2 = mit->th;
+				//comb3_erase(p);
+				//comb3_erase(mit->se);//坑！
+				//comb3_erase(mit->th);
+				//comb3_erase(t1);
+				//comb3_erase(t2);
 			}
 		}
 	}
-	//it[1] = lower_bound(comb.begin(), comb.end(), mpiii(1, 0, 0));
-	// for (int i = 0; i < comb.size(); ++i) {
-	// 	//printf("%d %d %d\n", comb[i].fi,comb[i].se,comb[i].th);
+	//it[1] = lower_bound(comb3.begin(), comb3.end(), mpiii(1, 0, 0));
+	// for (int i = 0; i < comb3.size(); ++i) {
+	// 	//printf("%d %d %d\n", comb3[i].fi,comb3[i].se,comb3[i].th);
 	// }
 
 	for (int p = 0; p < size; ++p) {
@@ -207,7 +206,7 @@ void gao() {
 	}
 	cnt = 0;
 	tot = 0;
-	base=calc3(base);
+	base = calc3(base);
 	//base=calc4(base);
 }
 
