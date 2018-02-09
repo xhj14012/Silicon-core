@@ -1,5 +1,5 @@
 #include <bits/stdc++.h>
-//#decine _ ios_a::sync_with_stdio(0);cin.tie(0);
+//#define _ ios_a::sync_with_stdio(0);cin.tie(0);
 #define QH freopen("qh.in", "r", stdin);
 #define SS ios::sync_with_stdio(false);
 #define LL long long
@@ -10,7 +10,7 @@
 #define MP(x,y) make_pair(x,y)
 #define MAX(a,b) a=max(a,b)
 #define MIN(a,b) a=min(a,b)
-//#decine mp make_pair
+//#define mp make_pair
 #define pb push_back
 #define gi(a) scanf("%d",&a);
 #define gi2(a,b) scanf("%d%d",&a,&b);
@@ -32,7 +32,7 @@ const int minlen = 685;
 const int maxlen = 695;
 #define fi first
 #define se second.first
-//#decine th second.second
+//#define th second.second
 
 #define third second.second.first
 #define forth second.second.second
@@ -50,43 +50,22 @@ struct Part {
 	void input() {
 		id = tot++;
 		scanf("%s", factory);
-		if (strcmp(factory, "yinhe")) {
-			strcpy(factory, "baotou");
-		}
 		scanf("%s", number);
 		scanf("%s", type);
 		scanf("%s", quality_s);
-		if (!strcmp(quality_s, "normal")) {
-			quality = 0;
-		} else if (!strcmp(quality_s, "impurity")) {
-			quality = 1;
-		} else {
-			quality = 0;
-		}
+		quality = strcmp(quality_s, "杂质")?1:0;
 		scanf("%d",&length);
 		scanf("%d", &matrix);
 		group = 0;
 		cut = 0;
 	}
 	void output() {
-		printf("|") ;
-		if (!strcmp(factory, "yinhe")) {
-			printf("银和");
-		} else if (!strcmp(factory, "baotou")) {
-			printf("包头");
-		} else {
-			printf("包头");
-		}
-		printf("\t\t|%s\t\t", number);
-		printf("|%s\t\t", type);
-		printf("|%s\t\t", ((quality == 0) ? "正常" : "杂质"));
+		printf("|%4s\t\t", factory);
+		printf("|%4s\t\t", number);
+		printf("|%2s\t\t", type);
+		printf("|%4s\t\t", quality_s);
 		printf("|%4d\t\t", length);
 		printf("|%4d\t\t", group);
-		// if (group > 0) {
-		// 	printf("|%4d\t\t", group);
-		// } else {
-		// 	printf("|无\t\t");
-		// }
 		printf("|%s\n", (cut ? "切" : ""));
 	}
 	int id;//硅棒序号
@@ -738,7 +717,6 @@ void gao() {
 		for (int i = 0; i < n; ++i) {
 			Part t;
 			t.input();
-			//if(t.quality==1)
 			db.pb(t);
 		}
 		result = mg(result, calc(db, max_cut_num));
@@ -748,7 +726,12 @@ void gao() {
 
 int main(int argc, char const *argv[]) {
 	freopen("data.dat", "r", stdin);
-	freopen("result.dat", "w", stdout);
+	//freopen("data-mod1.dat", "r", stdin);
+	//freopen("data-mod2.dat", "r", stdin);
+	//freopen("data-mod3.dat", "r", stdin);
+	//freopen("data-540.dat", "r", stdin);
+	//freopen("data-300.dat", "r", stdin);
+	freopen("result.out", "w", stdout);
 	gao();
 	printf("\nEOF\n");
 	return 0;
