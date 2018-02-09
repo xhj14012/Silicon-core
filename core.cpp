@@ -779,25 +779,27 @@ void select(vector<Part> db, int mod) {
 		}
 	}
 	vector <Part> result; result.clear();
-	if (mod == 1) {
+	if (mod == 1) { //不区分厂家，B,C自由匹配
 		vector<Part> mod1; mod1.clear();
 		mod1 = mg(mod1, yh_b_0);
-		mod1 = mg(mod1, yh_b_1);
 		mod1 = mg(mod1, yh_c_0);
-		mod1 = mg(mod1, yh_c_1);
 		mod1 = mg(mod1, bt_b_0);
-		mod1 = mg(mod1, bt_b_1);
 		mod1 = mg(mod1, bt_c_0);
-		mod1 = mg(mod1, bt_c_1);
 		result = calc(mod1);
-	} else if (mod == 2) {
+		mod1.clear();
+		mod1 = mg(mod1, yh_b_1);
+		mod1 = mg(mod1, yh_c_1);
+		mod1 = mg(mod1, bt_b_1);
+		mod1 = mg(mod1, bt_c_1);
+		result = mg(result,calc(mod1));
+	} else if (mod == 2) {//包头区无杂质B,C区自由匹配，不切
 		vector<Part> mod2; mod2.clear();
 		mod2 = mg(mod2, bt_b_0);
 		//mod2 = mg(mod2, bt_b_1);
 		mod2 = mg(mod2, bt_c_0);
 		//mod2 = mg(mod2, bt_c_1);
 		result = calc(mod2);
-	} else if (mod == 3) {
+	} else if (mod == 3) {//不分厂家,所以杂质匹配，不切
 		vector<Part> mod3; mod3.clear();
 		mod3 = mg(mod3, yh_a_1);
 		mod3 = mg(mod3, yh_b_1);
@@ -806,11 +808,11 @@ void select(vector<Part> db, int mod) {
 		mod3 = mg(mod3, bt_b_1);
 		mod3 = mg(mod3, bt_c_1);
 		result = calc(mod3);
-	} else if (mod == -1) {
+	} else if (mod == -1) {//不区分厂家，全区混拼，不切
 		result = calc(db);
-	} else if (mod == -2) {
+	} else if (mod == -2) {//不区分厂家，全区混拼，切
 		result = calc(db, 1);
-	} else if (mod == 4) {
+	} else if (mod == 4) {//不区分厂家，所有杂质匹配，切
 		vector<Part> mod4; mod4.clear();
 		mod4 = mg(mod4, yh_a_1);
 		mod4 = mg(mod4, yh_b_1);
@@ -819,6 +821,21 @@ void select(vector<Part> db, int mod) {
 		mod4 = mg(mod4, bt_b_1);
 		mod4 = mg(mod4, bt_c_1);
 		result = calc(mod4, 1);
+	} else if (mod == 5) {//不分厂家,所以非杂质匹配，切
+		vector<Part> mod3; mod3.clear();
+		mod3 = mg(mod3, yh_a_0);
+		mod3 = mg(mod3, yh_b_0);
+		mod3 = mg(mod3, yh_c_0);
+		mod3 = mg(mod3, bt_a_0);
+		mod3 = mg(mod3, bt_b_0);
+		mod3 = mg(mod3, bt_c_0);
+		result = calc(mod3, 1);
+	} else if (mod == 6) {//包头，不切
+
+	} else if (mod == 7) {
+
+	} else if (mod == 8) {
+
 	}
 	report(result);
 	// fstream fout("core.log", ios::out);
@@ -842,16 +859,16 @@ void gao() {
 		//if (t.quality == -1) continue;
 		db.push_back(t);
 	}
-	select(db, mod);
-	// select(db, 1);
-	// select(db, 2);
-	// select(db, 3);
+	//select(db, mod);
+	 select(db, 1);
+	 //select(db, 2);
+	 //select(db, 3);
 }
 
 int main(int argc, char const *argv[]) {
-	freopen("data-540.dat", "r", stdin);
+	freopen("data-3mod.dat", "r", stdin);
 	freopen("result.dat", "w", stdout);
 	gao();
-	cout << "EOF"<< endl;
+	cout << "EOF" << endl;
 	return 0;
 }
