@@ -43,8 +43,8 @@ PIIII mp(int a, int b, int c, int d = 0) {
 	return make_pair(a, make_pair(b, make_pair(c, d)));
 }
 fstream fin;
-fstream fout1("single_factory.out", ios::out);
-fstream fout2("mixup_factory.out", ios::out);
+//fstream fout1("single_factory.out", ios::out);
+//fstream fout2("mixup_factory.out", ios::out);
 int cnt = 0;
 int tot;
 int cut_num;
@@ -53,10 +53,20 @@ struct Part {
 	void input() {
 		id = tot++;
 		fin >> factory;
+		if (factory != "yinhe") {
+			factory = "baotou";
+		}
 		fin >> number;
 		fin >> type;
 		string quality_s; fin >> quality_s;
-		quality = (quality_s == "normal") ? 0 : 1;
+		if (quality_s == "normal") {
+			quality = 0;
+		} else if (quality_s == "impurity") {
+			quality = 1;
+		} else {
+			quality = 1;
+		}
+		//quality = (quality_s == "normal") ? 0 : 1;
 		fin >> length;
 		fin >> matrix;
 		group = 0;
@@ -64,15 +74,30 @@ struct Part {
 		//output();
 	}
 	void output() {
-		cout << id << "\t";
-		cout << factory << "\t";
-		cout << number << "\t";
-		cout << type << "\t\t";
-		cout << ((quality == 0) ? "normal  " : "impurity") << "\t";
-		cout << length << "\t\t";
+		//cout << id << "\t";
+		cout << "|" ;
+		if (factory == "yinhe") {
+			cout << "银和";
+		} else if (factory == "baotou") {
+			cout << "包头";
+		} else {
+			cout << "包头";
+		}
+		//(factory == "yinhe" ? "银和" : "包头")
+		cout << "\t";
+		cout << "|\t" << number << "\t\t";
+		cout << "|" << type << "\t\t";
+		cout << "|" << ((quality == 0) ? "正常" : "杂质") << "\t";
+		printf("|%4d\t", length);
+		//cout << "|" << length << "\t\t";
 		//cout << matrix << "\t";
-		cout << group << "\t\t";
-		cout << (cut ? "cut" : "-") << endl;
+		if (group > 0) {
+			printf("|%4d\t", group);
+		} else {
+			printf("|   无\t");
+		}
+		//cout << "|" << group << "\t\t";
+		cout << "  |" << (cut ? "切" : "") << endl;
 	}
 	int id;//硅棒序号
 	string factory;
@@ -473,9 +498,15 @@ vector<Part> calc3(vector<Part> v) {
 	return result;
 }
 int reportid;
+int max_cut;
+int rest_num;
+int rest_len;
+int used_len;
+int used_cnt;
+int cut_cnt;
 void report(vector<Part> a) {
-	printf("/************report************\n");
-	printf("id\tfactory\tmodel\ttype\tquality\t\tlength\tgroup\tifcut\n");
+	printf("|—--------------—--------------—--------------—--------------\n");
+	printf("厂家\t\t\t锭号\t\t棒号\t\t杂质情况\t  长度\t   分组\t  切割状况\n");
 	sort(a.begin(), a.end(), cmp_group);
 	//a = a;
 	//reverse(a.begin(), a.end());
@@ -487,19 +518,32 @@ void report(vector<Part> a) {
 		//a[i].output();
 		if (a[i].group <= 0) continue;
 		reportid++;
-		printf("group(%d):\n", reportid);
+		printf("第%d组:\n", reportid);
 		int sum = a[i].length;
 		a[i].output();
 		while (i + 1 < a.size() && a[i].group == a[i + 1].group) {
 			sum += a[i + 1].length;
 			a[i + 1].output();
+			used_cnt++;
+			used_len += a[i + 1].length;
 			++i;
 		}
-		printf("------------------------------------sum=%d\n", sum);
-		if(check(sum)!=1) cout << "error"<< endl;
+		printf("\n");
+		printf("\t\t\t\t\t\t\t拼接长度 = %d", sum);
+		if(check(sum)==1)printf("，符合要求\n");
+		//if (check(sum) != 1) cout << "error" << endl;
 		if (i + 1 == a.size()) break;
 	}
-	printf("/************report************\n");
+	printf("剩余:\n");
+	for (int i = 0; i < a.size(); ++i) {
+		if (a[i].group <= 0) {
+			a[i].output();
+			rest_num++;
+			rest_len += a[i].length;
+		}
+	}
+	//printf("%d\n", cut_num);
+	printf("|—--------------—--------------—--------------—--------------\n");
 }
 vector<Part> calc(vector<Part> db) {
 	db = calc3(db);
@@ -510,6 +554,7 @@ vector<Part> calc(vector<Part> db) {
 	//report(a);
 	db = calc4(db, 1);
 	//report(a);
+
 	return db;
 }
 vector<Part> mg(vector<Part> a, vector<Part> b) {
@@ -521,7 +566,6 @@ vector<Part> mg(vector<Part> a, vector<Part> b) {
 }
 void select(vector<Part> db) {
 	cnt = 0;
-	//cut_num = 50;
 	reportid = 0;
 	vector<Part> bt_a_zc;
 	bt_a_zc.clear();
@@ -554,7 +598,7 @@ void select(vector<Part> db) {
 		} else if (db[i].factory == "baotou" && db[i].type == 'A' && db[i].quality == 1) {
 			bt_a_zz.pb(db[i]);
 		}
-		
+
 		else if (db[i].factory == "baotou" && db[i].type == 'B' && db[i].quality == 0) {
 			bt_b_zc.pb(db[i]);
 		} else if (db[i].factory == "baotou" && db[i].type == 'B' && db[i].quality == 1) {
@@ -590,76 +634,102 @@ void select(vector<Part> db) {
 	if (flag == 1) {
 		cnt = 0;
 		vector<Part> c;
-		printf("yinghe A normal single:\n");
+		cut_num = max_cut;
+		printf("银和 A区 正常棒:\n");
 		c.clear();
 		c = calc(yh_a_zc);
 		report(c);
-
-		printf("yinghe A impurity single:\n");
+		cut_cnt += (max_cut - cut_num);
+		cut_num = max_cut;
+		printf("银和 A区 杂质棒:\n");
 		c.clear();
 		c = calc(yh_a_zz);
 		report(c);
-
-		printf("yinghe B normal single:\n");
+		cut_cnt += (max_cut - cut_num);
+		cut_num = max_cut;
+		printf("银和 B区 正常棒 :\n");
 		c.clear();
 		c = calc(yh_b_zc);
 		report(c);
-
-		printf("yinghe B impurity single:\n");
+		cut_cnt += (max_cut - cut_num);
+		cut_num = max_cut;
+		printf("银和 B区 杂质棒:\n");
 		c.clear();
 		c = calc(yh_b_zz);
 		report(c);
-
-		printf("yinghe C normal single:\n");
+		cut_cnt += (max_cut - cut_num);
+		cut_num = max_cut;
+		printf("银和 C区 正常棒:\n");
 		c.clear();
 		c = calc(yh_c_zc);
 		report(c);
-//
-		printf("yinghe C impurity single:\n");
+		cut_cnt += (max_cut - cut_num);
+		cut_num = max_cut;
+		printf("银和 C区 杂质棒:\n");
 		c.clear();
 		c = calc(yh_c_zz);
 		report(c);
-
-		printf("baotou A normal+impurity single:\n");
+		cut_cnt += (max_cut - cut_num);
+		cut_num = max_cut;
+		printf("包头 A区 正常棒+杂质棒:\n");
 		c.clear();
 		c = calc(mg(bt_a_zz, bt_a_zc));
 		report(c);
-
-		printf("baotou B+C normal single:\n");
+		cut_cnt += (max_cut - cut_num);
+		cut_num = max_cut;
+		printf("包头 B+C区 正常棒:\n");
 		c.clear();
 		c = calc(mg(bt_b_zc, bt_c_zc));
 		report(c);
-
-		printf("baotou B+C impurity single:\n");
+		cut_cnt += (max_cut - cut_num);
+		cut_num = max_cut;
+		printf("包头 B+C区 杂质棒:\n");
 		c.clear();
 		c = calc(mg(bt_b_zz, bt_c_zz));
 		report(c);
+		cut_cnt += (max_cut - cut_num);
 	} else {
 		cnt = 0;
 		vector<Part> c, result;
 		result.clear();
 	}
+
+	printf("共计算出 %d组拼棒方案\n", reportid);
+	printf("预设每区最大切割数 %d，请按需合理选择\n", max_cut);
+	printf("实际总切割数 % d\n", cut_cnt);
+	printf("实际利用（含切割后）棒数 % d\n", used_cnt);
+	printf("剩余（含切割后）棒数 %d\n", rest_num);
+	printf("有效利用棒长 % d\n", used_len);
+	printf("剩余棒长 %d\n", rest_len);
+	printf("有效棒长利用率%.2lf%%\n", 1.0*used_len/(used_len+rest_len)*100);
 }
 void gao() {
 	fin.close();
-	cut_num=50;
+	cut_num = 20;
+	rest_num = 0;
+	rest_len = 0;
+	used_len = 0;
+	used_cnt = 0;
+	cut_cnt = 0;
 	// printf("input max cut_num:");
 	// cut_num=50;
 	// cin >> cut_num;
 	// system("pause");
 	// printf("print any key to start calc\n");
 	//fin.open("data.dat", ios::in);
-	fin.open("data300.dat", ios::in);
-	fout1.close();
+	fin.open("data.dat", ios::in);
+	//fout1.close();
 	//fout1.open("test.out",ios::out);
 	//fgets(title,99,stdin);
-	fin.getline(title, 99);
+	//fin.getline(title, 99);
+	fin >> max_cut;
+	cut_num = max_cut;
+
 	vector <Part> db;
 	db.clear();
 	tot = 0;
 
 	while (!fin.eof()) {
-		//for (int i = 0; i < 540; ++i) {
 		Part t;
 		t.input();
 		db.push_back(t);
@@ -667,24 +737,10 @@ void gao() {
 	fin.close();
 
 	select(db);
-	//select2(db);
-	//fout1.close();
 }
 
 int main(int argc, char const *argv[]) {
-	//freopen("data.dat", "r", stdin);
-	freopen("result.txt", "w", stdout);
-	//freopen("test.out", "w", stdout);
-	//ifstream infile;
-	//infile.open("data.dat",ios::in);
-	// //variable
-//    locale cn("zh_CN.UTF-8");
-//    wstring text, str1, str2;
-//    wifstream is;
-//    wofstream os;
-//    is.imbue(cn);
-//    os.imbue(cn);
+	freopen("result.dat", "w", stdout);
 	gao();
-	//infile.close();
 	return 0;
 }
