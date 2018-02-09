@@ -455,56 +455,163 @@ vector<Part> calc3(vector<Part> v) {
 	// }
 	return result;
 }
+int reportid;
 void report(vector<Part> a) {
-	printf("/******report******\n");
+	printf("/************report************\n");
 	sort(a.begin(), a.end(), cmp_group);
 	//a = a;
 	//reverse(a.begin(), a.end());
-	for (int i = 0, g = 0; i <= a.size(); ++i) {
+	for (int i = 0; i < a.size(); ++i) {
 		if (a[i].group <= 0) continue;
-		g++;
-		printf("group%d:\n", g);
+		reportid++;
+		printf("group%d:\n", reportid);
 		int sum = a[i].length;
 		a[i].output();
-		while (a[i].group == a[i + 1].group) {
+		while (i + 1 < a.size() && a[i].group == a[i + 1].group) {
 			sum += a[i + 1].length;
 			a[i + 1].output();
 			++i;
 		}
 		printf("sum=%d\n", sum);
+		if(i+1==a.size()) break;
 	}
-	printf("/******report******\n");
+	printf("/************report************\n");
 }
-vector<Part> calc(vector<Part> a) {
-	a = calc3(a);
+vector<Part> calc(vector<Part> db) {
+	db = calc3(db);
 	//report(a);
-	a = calc4(a);
+	db = calc4(db);
 	//report(a);
-	a = calc3(a, 1);
+	db = calc3(db, 1);
 	//report(a);
-	a = calc4(a, 1);
+	db = calc4(db, 1);
 	//report(a);
+	return db;
+}
+vector<Part> mg(vector<Part> a, vector<Part> b) {
+	int size = b.size();
+	for (int i = 0; i < size; ++i) {
+		a.pb(b[i]);
+	}
 	return a;
 }
-void select() {
-	
+void select(vector<Part> db) {
+	cnt = 0;
+	cut_num = 100;
+	reportid = 0;
+	vector<Part> bt_a_zc;
+	vector<Part> bt_a_zz;
+	vector<Part> bt_b_zc;
+	vector<Part> bt_b_zz;
+	vector<Part> bt_c_zc;
+	vector<Part> bt_c_zz;
+	vector<Part> yh_a_zc;
+	vector<Part> yh_a_zz;
+	vector<Part> yh_b_zc;
+	vector<Part> yh_b_zz;
+	vector<Part> yh_c_zc;
+	vector<Part> yh_c_zz;
+	int size = db.size();
+	for (int i = 0; i < size; ++i) {
+		if (db[i].factory == "baotou" && db[i].type == 'A' && db[i].quality == 0) {
+			bt_a_zc.pb(db[i]);
+		} else if (db[i].factory == "baotou" && db[i].type == 'A' && db[i].quality == 1) {
+			bt_a_zz.pb(db[i]);
+		}
+
+		else if (db[i].factory == "baotou" && db[i].type == 'B' && db[i].quality == 0) {
+			bt_b_zc.pb(db[i]);
+		} else if (db[i].factory == "baotou" && db[i].type == 'B' && db[i].quality == 1) {
+			bt_b_zz.pb(db[i]);
+		}
+
+		else if (db[i].factory == "baotou" && db[i].type == 'C' && db[i].quality == 0) {
+			bt_c_zc.pb(db[i]);
+		} else if (db[i].factory == "baotou" && db[i].type == 'C' && db[i].quality == 1) {
+			bt_c_zz.pb(db[i]);
+		}
+
+		else if (db[i].factory == "yinhe" && db[i].type == 'A' && db[i].quality == 0) {
+			yh_a_zc.pb(db[i]);
+		} else if (db[i].factory == "yinhe" && db[i].type == 'A' && db[i].quality == 1) {
+			yh_a_zz.pb(db[i]);
+		}
+
+		else if (db[i].factory == "yinhe" && db[i].type == 'B' && db[i].quality == 0) {
+			yh_b_zc.pb(db[i]);
+		} else if (db[i].factory == "yinhe" && db[i].type == 'B' && db[i].quality == 1) {
+			bt_b_zz.pb(db[i]);
+		}
+
+		else if (db[i].factory == "yinhe" && db[i].type == 'C' && db[i].quality == 0) {
+			yh_c_zc.pb(db[i]);
+		} else if (db[i].factory == "yinhe" && db[i].type == 'C' && db[i].quality == 1) {
+			yh_c_zz.pb(db[i]);
+		}
+	}
+	vector<Part> c;
+
+	printf("yinghe A normal single:\n");
+	c.clear();
+	c = calc(yh_a_zc);
+	report(c);
+
+	printf("yinghe A impurity single:\n");
+	c.clear();
+	c = calc(yh_a_zz);
+	report(c);
+
+	printf("yinghe B normal single:\n");
+	c.clear();
+	c = calc(yh_b_zc);
+	report(c);
+
+	printf("yinghe B impurity single:\n");
+	c.clear();
+	c = calc(yh_b_zz);
+	report(c);
+
+	printf("yinghe C normal single:\n");
+	c.clear();
+	c = calc(yh_c_zc);
+	report(c);
+
+	printf("yinghe C impurity single:\n");
+	c.clear();
+	c = calc(yh_c_zz);
+	report(c);
+
+	printf("baotou A normal+impurity single:\n");
+	c.clear();
+	bt_a_zz=mg(bt_a_zz,bt_a_zc);
+	c = calc(bt_a_zz);
+	report(c);
+
+	printf("baotou B+C normal single:\n");
+	c.clear();
+	bt_b_zc=mg(bt_b_zc,bt_c_zc);
+	c = calc(bt_b_zc);
+	report(c);
+
+	printf("baotou B+C impurity single:\n");
+	c.clear();
+	bt_b_zz=mg(bt_b_zz,bt_c_zz);
+	c = calc(bt_b_zz);
+	report(c);
 }
 void gao() {
 	//fgets(title,99,stdin);
 	cin.getline(title, 99);
-	vector <Part> a;
-	a.clear();
+	vector <Part> db;
+	db.clear();
+	tot = 0;
 	while (!cin.eof()) {
 		//for (int i = 0; i < 540; ++i) {
 		Part t;
 		t.input();
-		a.push_back(t);
+		db.push_back(t);
 	}
-	cnt = 0;
-	tot = 0;
-	cut_num = 100;
-	a = calc(a);
-	report(a);
+	select(db);
 }
 
 int main(int argc, char const *argv[]) {
