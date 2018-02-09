@@ -1,5 +1,5 @@
 #include <bits/stdc++.h>
-#define _ ios_a::sync_with_stdio(0);cin.tie(0);
+#define _ ios_a::sync_with_stdio(0);fin.tie(0);
 #define QH freopen("qh.in", "r", stdin);
 #define SS ios::sync_with_stdio(false);
 #define LL long long
@@ -42,6 +42,9 @@ const int maxlen = 695;
 PIIII mp(int a, int b, int c, int d = 0) {
 	return make_pair(a, make_pair(b, make_pair(c, d)));
 }
+fstream fin;
+fstream fout1("single_factory.out", ios::out);
+fstream fout2("mixup_factory.out", ios::out);
 int cnt = 0;
 int tot;
 int cut_num;
@@ -49,13 +52,13 @@ vector<string> factory_cant_mix;
 struct Part {
 	void input() {
 		id = tot++;
-		cin >> factory;
-		cin >> number;
-		cin >> type;
-		string quality_s; cin >> quality_s;
+		fin >> factory;
+		fin >> number;
+		fin >> type;
+		string quality_s; fin >> quality_s;
 		quality = (quality_s == "normal") ? 0 : 1;
-		cin >> length;
-		cin >> matrix;
+		fin >> length;
+		fin >> matrix;
 		group = 0;
 		cut = 0;
 		//output();
@@ -64,11 +67,11 @@ struct Part {
 		cout << id << "\t";
 		cout << factory << "\t";
 		cout << number << "\t";
-		cout << type << "\t";
+		cout << type << "\t\t";
 		cout << ((quality == 0) ? "normal  " : "impurity") << "\t";
-		cout << length << "\t";
+		cout << length << "\t\t";
 		//cout << matrix << "\t";
-		cout << group << "\t";
+		cout << group << "\t\t";
 		cout << (cut ? "cut" : "-") << endl;
 	}
 	int id;//硅棒序号
@@ -142,7 +145,7 @@ vector<Part> calc4(vector<Part> v, int if_cut) {
 	}
 	Part v0, v1, v2;
 	while (cut_num) {
-		if (v.size() <= 4) {
+		if (v.size() < 4) {
 			break;
 		}
 		sort(v.begin(), v.end(), cmp_length);
@@ -152,8 +155,11 @@ vector<Part> calc4(vector<Part> v, int if_cut) {
 		v.erase(v.begin());
 		v.erase(v.begin());
 		int add = v0.length + v1.length + v2.length;
+		//if (add > maxlen) cout << "debug";
 		int need = minlen - add;
-		for (std::vector<Part>::iterator it = v.end(); it != v.begin(); --it) {
+
+		for (std::vector<Part>::iterator it = v.end(); it != v.begin();) {
+			--it;
 			if (check(it->length + add) == 1) {
 				cnt++;
 				v0.group = cnt;
@@ -161,8 +167,8 @@ vector<Part> calc4(vector<Part> v, int if_cut) {
 				v2.group = cnt;
 				it->group = cnt;
 				result.pb(*it);
+				v.erase(it);//
 				break;
-
 			} else if (check(it->length + add) == 0) {
 				cnt++;
 				cut_num--;
@@ -213,7 +219,7 @@ vector<Part> calc3(vector<Part> v, int if_cut) {
 	}
 	Part v0, v1;
 	while (cut_num) {
-		if (v.size() <= 3) {
+		if (v.size() < 3) {
 			break;
 		}
 		sort(v.begin(), v.end(), cmp_length);
@@ -223,13 +229,15 @@ vector<Part> calc3(vector<Part> v, int if_cut) {
 		v.erase(v.begin());
 		int add = v0.length + v1.length;
 		int need = minlen - add;
-		for (std::vector<Part>::iterator it = v.end(); it != v.begin(); --it) {
+		for (std::vector<Part>::iterator it = v.end(); it != v.begin();) {
+			--it;
 			if (check(it->length + add) == 1) {
 				cnt++;
 				v0.group = cnt;
 				v1.group = cnt;
 				it->group = cnt;
 				result.pb(*it);
+				v.erase(it);///
 				break;
 
 			} else if (check(it->length + add) == 0) {
@@ -363,7 +371,6 @@ vector<Part> calc4(vector<Part> v) {
 	return result;
 }
 vector<Part> calc3(vector<Part> v) {
-
 	vector<Part> result;
 	result.clear();
 	for (std::vector<Part>::iterator it = v.begin(); it != v.end();) {
@@ -458,10 +465,12 @@ vector<Part> calc3(vector<Part> v) {
 int reportid;
 void report(vector<Part> a) {
 	printf("/************report************\n");
+	printf("id\tfactory\tmodel\ttype\tquality\t\tlength\tgroup\tifcut\n");
 	sort(a.begin(), a.end(), cmp_group);
 	//a = a;
 	//reverse(a.begin(), a.end());
 	for (int i = 0; i < a.size(); ++i) {
+		//a[i].output();
 		if (a[i].group <= 0) continue;
 		reportid++;
 		printf("group%d:\n", reportid);
@@ -473,7 +482,7 @@ void report(vector<Part> a) {
 			++i;
 		}
 		printf("sum=%d\n", sum);
-		if(i+1==a.size()) break;
+		if (i + 1 == a.size()) break;
 	}
 	printf("/************report************\n");
 }
@@ -497,22 +506,34 @@ vector<Part> mg(vector<Part> a, vector<Part> b) {
 }
 void select(vector<Part> db) {
 	cnt = 0;
-	cut_num = 100;
+	cut_num = 10;
 	reportid = 0;
 	vector<Part> bt_a_zc;
+	bt_a_zc.clear();
 	vector<Part> bt_a_zz;
+	bt_a_zz.clear();
 	vector<Part> bt_b_zc;
+	bt_b_zc.clear();
 	vector<Part> bt_b_zz;
+	bt_b_zz.clear();
 	vector<Part> bt_c_zc;
+	bt_c_zc.clear();
 	vector<Part> bt_c_zz;
+	bt_c_zz.clear();
 	vector<Part> yh_a_zc;
+	yh_a_zc.clear();
 	vector<Part> yh_a_zz;
+	yh_a_zz.clear();
 	vector<Part> yh_b_zc;
+	yh_b_zc.clear();
 	vector<Part> yh_b_zz;
+	yh_b_zz.clear();
 	vector<Part> yh_c_zc;
+	yh_c_zc.clear();
 	vector<Part> yh_c_zz;
+	yh_c_zz.clear();
 	int size = db.size();
-	for (int i = 0; i < size; ++i) {
+	for (int i = 0; i < size; ++i) {//暂只指定工厂
 		if (db[i].factory == "baotou" && db[i].type == 'A' && db[i].quality == 0) {
 			bt_a_zc.pb(db[i]);
 		} else if (db[i].factory == "baotou" && db[i].type == 'A' && db[i].quality == 1) {
@@ -540,7 +561,7 @@ void select(vector<Part> db) {
 		else if (db[i].factory == "yinhe" && db[i].type == 'B' && db[i].quality == 0) {
 			yh_b_zc.pb(db[i]);
 		} else if (db[i].factory == "yinhe" && db[i].type == 'B' && db[i].quality == 1) {
-			bt_b_zz.pb(db[i]);
+			yh_b_zz.pb(db[i]);
 		}
 
 		else if (db[i].factory == "yinhe" && db[i].type == 'C' && db[i].quality == 0) {
@@ -549,75 +570,133 @@ void select(vector<Part> db) {
 			yh_c_zz.pb(db[i]);
 		}
 	}
-	vector<Part> c;
+	int flag = 1;
 
-	printf("yinghe A normal single:\n");
-	c.clear();
-	c = calc(yh_a_zc);
-	report(c);
+	if (flag == 1) {
+		cnt = 0;
+		vector<Part> c;
+		printf("yinghe A normal single:\n");
+		c.clear();
+		c = calc(yh_a_zc);
+		report(c);
 
-	printf("yinghe A impurity single:\n");
-	c.clear();
-	c = calc(yh_a_zz);
-	report(c);
+		printf("yinghe A impurity single:\n");
+		c.clear();
+		c = calc(yh_a_zz);
+		report(c);
 
-	printf("yinghe B normal single:\n");
-	c.clear();
-	c = calc(yh_b_zc);
-	report(c);
+		printf("yinghe B normal single:\n");
+		c.clear();
+		c = calc(yh_b_zc);
+		report(c);
 
-	printf("yinghe B impurity single:\n");
-	c.clear();
-	c = calc(yh_b_zz);
-	report(c);
+		printf("yinghe B impurity single:\n");
+		c.clear();
+		c = calc(yh_b_zz);
+		report(c);
 
-	printf("yinghe C normal single:\n");
-	c.clear();
-	c = calc(yh_c_zc);
-	report(c);
+		printf("yinghe C normal single:\n");
+		c.clear();
+		c = calc(yh_c_zc);
+		report(c);
+//
+		printf("yinghe C impurity single:\n");
+		c.clear();
+		c = calc(yh_c_zz);
+		report(c);
 
-	printf("yinghe C impurity single:\n");
-	c.clear();
-	c = calc(yh_c_zz);
-	report(c);
+		printf("baotou A normal+impurity single:\n");
+		c.clear();
+		c = calc(mg(bt_a_zz, bt_a_zc));
+		report(c);
 
-	printf("baotou A normal+impurity single:\n");
-	c.clear();
-	bt_a_zz=mg(bt_a_zz,bt_a_zc);
-	c = calc(bt_a_zz);
-	report(c);
+		printf("baotou B+C normal single:\n");
+		c.clear();
+		c = calc(mg(bt_b_zc, bt_c_zc));
+		report(c);
 
-	printf("baotou B+C normal single:\n");
-	c.clear();
-	bt_b_zc=mg(bt_b_zc,bt_c_zc);
-	c = calc(bt_b_zc);
-	report(c);
+		printf("baotou B+C impurity single:\n");
+		c.clear();
+		c = calc(mg(bt_b_zz, bt_c_zz));
+		report(c);
+	} else {
+		cnt = 0;
+		vector<Part> c, result;
+		result.clear();
+		// printf("yinghe A normal single:\n");
+		// c.clear();
+		// c = calc(yh_a_zc);
+		// result = mg(result, c);
 
-	printf("baotou B+C impurity single:\n");
-	c.clear();
-	bt_b_zz=mg(bt_b_zz,bt_c_zz);
-	c = calc(bt_b_zz);
-	report(c);
+		// printf("yinghe A impurity single:\n");
+		// c.clear();
+		// c = calc(yh_a_zz);
+		// report(c);
+
+		// printf("yinghe B normal single:\n");
+		// c.clear();
+		// c = calc(yh_b_zc);
+		// report(c);
+
+		// printf("yinghe B impurity single:\n");
+		// c.clear();
+		// c = calc(yh_b_zz);
+		// report(c);
+
+		// printf("yinghe C normal single:\n");
+		// c.clear();
+		// c = calc(yh_c_zc);
+		// report(c);
+
+		// printf("yinghe C impurity single:\n");
+		// c.clear();
+		// c = calc(yh_c_zz);
+		// report(c);
+
+		// printf("baotou A normal+impurity single:\n");
+		// c.clear();
+		// c = calc(mg(bt_a_zz, bt_a_zc));
+		// report(c);
+
+		// printf("baotou B+C normal single:\n");
+		// c.clear();
+		// c = calc(mg(bt_b_zc, bt_c_zc));
+		// report(c);
+
+		// printf("baotou B+C impurity single:\n");
+		// c.clear();
+		// c = calc(mg(bt_b_zz, bt_c_zz));
+		// report(c);
+	}
 }
 void gao() {
+	fin.close();
+	fin.open("data.dat", ios::in);
+	fout1.close();
+	//fout1.open("test.out",ios::out);
 	//fgets(title,99,stdin);
-	cin.getline(title, 99);
+	fin.getline(title, 99);
 	vector <Part> db;
 	db.clear();
 	tot = 0;
-	while (!cin.eof()) {
+
+	while (!fin.eof()) {
 		//for (int i = 0; i < 540; ++i) {
 		Part t;
 		t.input();
 		db.push_back(t);
 	}
+	fin.close();
+
 	select(db);
+	//select2(db);
+	//fout1.close();
 }
 
 int main(int argc, char const *argv[]) {
 	//freopen("data.dat", "r", stdin);
-	freopen("test.dat", "r", stdin);
-	freopen("test.out", "w", stdout);
+	freopen("result.txt", "w", stdout);
+	//freopen("test.out", "w", stdout);
 	//ifstream infile;
 	//infile.open("data.dat",ios::in);
 	// //variable
