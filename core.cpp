@@ -56,6 +56,7 @@ struct Part {
 		cin >> length;
 		cin >> matrix;
 		group = 0;
+		cut = 0;
 		//output();
 	}
 	void output() {
@@ -65,8 +66,9 @@ struct Part {
 		cout << type << "\t";
 		cout << ((quality == 0) ? "normal  " : "impurity") << "\t";
 		cout << length << "\t";
-		cout << matrix << "\t";
-		cout << group << endl;
+		//cout << matrix << "\t";
+		cout << group << "\t";
+		cout << (cut ? "cut" : "-") << endl;
 	}
 	int id;//硅棒序号
 	string factory;
@@ -76,6 +78,7 @@ struct Part {
 	int length;
 	int matrix;
 	int group;//拼接方案组号
+	int cut;
 	// bool  operator < (const Part &a)const {
 	// 	return length < a.length;
 	// }
@@ -120,7 +123,99 @@ int check(int val) {
 // 		}
 // 	}
 // }
-vector<Part> calc4(vector<Part> v, bool if_cut = 1) {
+//
+vector<Part> calc3(vector<Part> v, int cut_num) {
+
+	vector<Part> result;
+	result.clear();
+	for (std::vector<Part>::iterator it = v.begin(); it != v.end();) {
+		if (it->group > 0) {
+			result.pb(*it);
+			it = v.erase(it);
+		} else {
+			if (it->group == -1) {
+				it->group = 0;
+			}
+			++it;
+		}
+	}
+	sort(v.begin(), v.end(), cmp_length);
+	reverse(v.begin(), v.end());
+	vector<Part> rest;
+	rest.clear();
+	int restcnt[500];//基排
+	memset(restcnt, 0, sizeof restcnt);
+	Part v0, v1;
+	bool flag;
+	while (cut_num) {
+		if (v.size() <= 1) {
+			break;
+		}
+		flag = true;
+		v0 = v[0]; v1 = v[1];
+		v.erase(v.begin());
+		v.erase(v.begin());
+		int add = v0.length + v1.length;
+		int need = minlen - add;
+		for (int i = need; i <= need + 10; ++i) {
+			if (restcnt[i] >= 1) {
+				restcnt[i]--;
+				for (std::vector<Part>::iterator it = rest.begin(); it != rest.end(); ++it) {
+					if (it->length == i) {
+						cnt++;
+						it->group = cnt;
+						result.pb(*it);
+						rest.erase(it);
+						v0.group = cnt;
+						v1.group = cnt;
+						result.pb(v0);
+						result.pb(v1);
+						flag = false;
+						break;
+					}
+				}
+				break;
+			}
+		}
+		if (flag == false) continue;
+		for (std::vector<Part>::iterator it = v.end(); it != v.begin(); --it) {
+			if (it->length >= need) {
+				cnt++;
+				cut_num--;
+				v0.group = cnt;
+				v1.group = cnt;
+				it->cut = 1;
+				int tmp = it->length - need;
+				restcnt[tmp]++;
+				it->length = tmp;
+				rest.pb(*it);
+				it->length = need;
+				it->group = cnt;
+				result.pb(*it);
+				v.erase(it);
+				break;
+			}
+		}
+		result.pb(v0);
+		result.pb(v1);
+	}
+
+	for (int p = 0; p < rest.size(); ++p) {
+		result.pb(rest[p]);
+	}
+	for (int p = 0; p < v.size(); ++p) {
+		result.pb(v[p]);
+	}
+	printf("result:\n");
+	sort(result.begin(), result.end(), cmp_group);
+	for (int i = 0; i < result.size(); ++i) {
+		//cout << i << " ";
+		result[i].output();
+	}
+	return result;
+}
+
+vector<Part> calc4(vector<Part> v) {
 
 	vector<Part> result;
 	result.clear();
@@ -216,7 +311,7 @@ vector<Part> calc4(vector<Part> v, bool if_cut = 1) {
 	// }
 	return result;
 }
-vector<Part> calc3(vector<Part> v, bool if_cut = 0) {
+vector<Part> calc3(vector<Part> v) {
 
 	vector<Part> result;
 	result.clear();
@@ -342,15 +437,17 @@ void gao() {
 	}
 	cnt = 0;
 	tot = 0;
-	a = calc3(a);
+	//a = calc3(a);
 	//report(a);
-	a = calc4(a);
+	//a = calc4(a);
+	//report(a);
+	a = calc3(a, 1);
 	report(a);
 }
 
 int main(int argc, char const *argv[]) {
 	//freopen("data.dat", "r", stdin);
-	freopen("test3.dat", "r", stdin);
+	freopen("test.dat", "r", stdin);
 	freopen("test.out", "w", stdout);
 	//ifstream infile;
 	//infile.open("data.dat",ios::in);
