@@ -44,55 +44,56 @@ PIIII mp(int a, int b, int c, int d = 0) {
 }
 int cnt = 0;
 int tot;
-int cut_num, max_cut_num;
-vector<string> factory_cant_mix;
+int rest_cut_num, max_cut_num;
+//vector<string> factory_cant_mix;
 struct Part {
 	void input() {
 		id = tot++;
-		cin >> factory;
-		if (factory != "yinhe") {
-			factory = "baotou";
+		scanf("%s", factory);
+		if (strcmp(factory, "yinhe")) {
+			strcpy(factory, "baotou");
 		}
-		cin >> number;
-		cin >> type;
-		string quality_s; cin >> quality_s;
-		if (quality_s == "normal") {
+		scanf("%s", number);
+		scanf("%s", type);
+		scanf("%s", quality_s);
+		if (!strcmp(quality_s, "normal")) {
 			quality = 0;
-		} else if (quality_s == "impurity") {
+		} else if (!strcmp(quality_s, "impurity")) {
 			quality = 1;
 		} else {
 			quality = 0;
 		}
-		cin >> length;
-		cin >> matrix;
+		scanf("%d",&length);
+		scanf("%d", &matrix);
 		group = 0;
 		cut = 0;
 	}
 	void output() {
-		cout << "|" ;
-		if (factory == "yinhe") {
-			cout << "银和";
-		} else if (factory == "baotou") {
-			cout << "包头";
+		printf("|") ;
+		if (!strcmp(factory, "yinhe")) {
+			printf("银和");
+		} else if (!strcmp(factory, "baotou")) {
+			printf("包头");
 		} else {
-			cout << "包头";
+			printf("包头");
 		}
-		cout << "\t";
-		cout << "|\t" << number << "\t\t";
-		cout << "|" << type << "\t\t";
-		cout << "|" << ((quality == 0) ? "正常" : "杂质") << "\t";
+		printf("\t");
+		printf("|\t%s\t\t", number);
+		printf("|%s\t\t", type);
+		printf("|%s\t", ((quality == 0) ? "正常" : "杂质"));
 		printf("|%4d\t", length);
 		if (group > 0) {
 			printf("|%4d\t", group);
 		} else {
 			printf("|   无\t");
 		}
-		cout << "  |" << (cut ? "切" : "") << endl;
+		printf("  |%s\n", (cut ? "切" : ""));
 	}
 	int id;//硅棒序号
-	string factory;
-	string number;
-	char type;
+	char factory[11];
+	char number[11];
+	char type[11];
+	char quality_s[11];
 	int quality;
 	int length;
 	int matrix;
@@ -121,7 +122,6 @@ int check(int val) {
 }
 
 vector<Part> calc4(vector<Part> v, int if_cut) {
-
 	vector<Part> result;
 	result.clear();
 	for (std::vector<Part>::iterator it = v.begin(); it != v.end();) {
@@ -136,7 +136,7 @@ vector<Part> calc4(vector<Part> v, int if_cut) {
 		}
 	}
 	Part v0, v1, v2;
-	while (cut_num > 0) {
+	while (rest_cut_num > 0) {
 		if (v.size() < 4) {
 			break;
 		}
@@ -163,7 +163,7 @@ vector<Part> calc4(vector<Part> v, int if_cut) {
 				break;
 			} else if (check(it->length + add) == 0) {
 				cnt++;
-				cut_num--;
+				rest_cut_num--;
 				v0.group = cnt;
 				v1.group = cnt;
 				v2.group = cnt;
@@ -210,7 +210,7 @@ vector<Part> calc3(vector<Part> v, int if_cut) {
 		}
 	}
 	Part v0, v1;
-	while (cut_num > 0) {
+	while (rest_cut_num > 0) {
 		if (v.size() < 3) {
 			break;
 		}
@@ -234,7 +234,7 @@ vector<Part> calc3(vector<Part> v, int if_cut) {
 
 			} else if (check(it->length + add) == 0) {
 				cnt++;
-				cut_num--;
+				rest_cut_num--;
 				v0.group = cnt;
 				v1.group = cnt;
 				it->cut = 1;
@@ -704,7 +704,7 @@ void report(vector<Part> a) {
 	printf("匹配率 = %.2f%%\n", 1.0 * used_cnt / (used_cnt + rest_cnt) * 100);
 	if (max_cut_num > 0) {
 		printf("最大截断刀数 %d\n", max_cut_num);
-		printf("实际截断刀数 %d\n", max_cut_num - cut_num);
+		printf("实际截断刀数 %d\n", max_cut_num - rest_cut_num);
 	}
 
 }
@@ -726,149 +726,29 @@ vector<Part> mg(vector<Part> a, vector<Part> b) {
 	}
 	return a;
 }
-void select(vector<Part> db, int mod) {
+void gao() {
+	int n;
+	scanf("%d", &max_cut_num);
 	cnt = 0;
-	vector<Part> bt_a_0; bt_a_0.clear();
-	vector<Part> bt_a_1; bt_a_1.clear();
-	vector<Part> bt_b_0; bt_b_0.clear();
-	vector<Part> bt_b_1; bt_b_1.clear();
-	vector<Part> bt_c_0; bt_c_0.clear();
-	vector<Part> bt_c_1; bt_c_1.clear();
-	vector<Part> yh_a_0; yh_a_0.clear();
-	vector<Part> yh_a_1; yh_a_1.clear();
-	vector<Part> yh_b_0; yh_b_0.clear();
-	vector<Part> yh_b_1; yh_b_1.clear();
-	vector<Part> yh_c_0; yh_c_0.clear();
-	vector<Part> yh_c_1; yh_c_1.clear();
-	int size = db.size();
-	for (int i = 0; i < size; ++i) {
-		if (db[i].factory == "baotou" && db[i].type == 'A' && db[i].quality == 0) {
-			bt_a_0.pb(db[i]);
-		} else if (db[i].factory == "baotou" && db[i].type == 'A' && db[i].quality == 1) {
-			bt_a_1.pb(db[i]);
+	rest_cut_num = max_cut_num;
+	vector<Part> result;
+	result.clear();
+	while (~scanf("%d", &n)) {
+		vector<Part>db; db.clear();
+		for (int i = 0; i < n; ++i) {
+			Part t;
+			t.input();
+			db.pb(t);
 		}
-
-		else if (db[i].factory == "baotou" && db[i].type == 'B' && db[i].quality == 0) {
-			bt_b_0.pb(db[i]);
-		} else if (db[i].factory == "baotou" && db[i].type == 'B' && db[i].quality == 1) {
-			bt_b_1.pb(db[i]);
-		}
-
-		else if (db[i].factory == "baotou" && db[i].type == 'C' && db[i].quality == 0) {
-			bt_c_0.pb(db[i]);
-		} else if (db[i].factory == "baotou" && db[i].type == 'C' && db[i].quality == 1) {
-			bt_c_1.pb(db[i]);
-		}
-
-		else if (db[i].factory == "yinhe" && db[i].type == 'A' && db[i].quality == 0) {
-			yh_a_0.pb(db[i]);
-		} else if (db[i].factory == "yinhe" && db[i].type == 'A' && db[i].quality == 1) {
-			yh_a_1.pb(db[i]);
-		}
-
-		else if (db[i].factory == "yinhe" && db[i].type == 'B' && db[i].quality == 0) {
-			yh_b_0.pb(db[i]);
-		} else if (db[i].factory == "yinhe" && db[i].type == 'B' && db[i].quality == 1) {
-			yh_b_1.pb(db[i]);
-		}
-
-		else if (db[i].factory == "yinhe" && db[i].type == 'C' && db[i].quality == 0) {
-			yh_c_0.pb(db[i]);
-		} else if (db[i].factory == "yinhe" && db[i].type == 'C' && db[i].quality == 1) {
-			yh_c_1.pb(db[i]);
-		}
-	}
-	vector <Part> result; result.clear();
-	if (mod == 1) { //不区分厂家，B,C自由匹配
-		vector<Part> mod1; mod1.clear();
-		mod1 = mg(mod1, yh_b_0);
-		mod1 = mg(mod1, yh_c_0);
-		mod1 = mg(mod1, bt_b_0);
-		mod1 = mg(mod1, bt_c_0);
-		result = calc(mod1);
-		mod1.clear();
-		mod1 = mg(mod1, yh_b_1);
-		mod1 = mg(mod1, yh_c_1);
-		mod1 = mg(mod1, bt_b_1);
-		mod1 = mg(mod1, bt_c_1);
-		result = mg(result,calc(mod1));
-	} else if (mod == 2) {//包头区无杂质B,C区自由匹配，不切
-		vector<Part> mod2; mod2.clear();
-		mod2 = mg(mod2, bt_b_0);
-		//mod2 = mg(mod2, bt_b_1);
-		mod2 = mg(mod2, bt_c_0);
-		//mod2 = mg(mod2, bt_c_1);
-		result = calc(mod2);
-	} else if (mod == 3) {//不分厂家,所以杂质匹配，不切
-		vector<Part> mod3; mod3.clear();
-		mod3 = mg(mod3, yh_a_1);
-		mod3 = mg(mod3, yh_b_1);
-		mod3 = mg(mod3, yh_c_1);
-		mod3 = mg(mod3, bt_a_1);
-		mod3 = mg(mod3, bt_b_1);
-		mod3 = mg(mod3, bt_c_1);
-		result = calc(mod3);
-	} else if (mod == -1) {//不区分厂家，全区混拼，不切
-		result = calc(db);
-	} else if (mod == -2) {//不区分厂家，全区混拼，切
-		result = calc(db, 1);
-	} else if (mod == 4) {//不区分厂家，所有杂质匹配，切
-		vector<Part> mod4; mod4.clear();
-		mod4 = mg(mod4, yh_a_1);
-		mod4 = mg(mod4, yh_b_1);
-		mod4 = mg(mod4, yh_c_1);
-		mod4 = mg(mod4, bt_a_1);
-		mod4 = mg(mod4, bt_b_1);
-		mod4 = mg(mod4, bt_c_1);
-		result = calc(mod4, 1);
-	} else if (mod == 5) {//不分厂家,所以非杂质匹配，切
-		vector<Part> mod3; mod3.clear();
-		mod3 = mg(mod3, yh_a_0);
-		mod3 = mg(mod3, yh_b_0);
-		mod3 = mg(mod3, yh_c_0);
-		mod3 = mg(mod3, bt_a_0);
-		mod3 = mg(mod3, bt_b_0);
-		mod3 = mg(mod3, bt_c_0);
-		result = calc(mod3, 1);
-	} else if (mod == 6) {//包头，不切
-
-	} else if (mod == 7) {
-
-	} else if (mod == 8) {
-
+		result = mg(result, calc(db, max_cut_num));
 	}
 	report(result);
-	// fstream fout("core.log", ios::out);
-	// fout.close();
-}
-void gao() {
-	//max_cut_num = 20;
-	cut_num = max_cut_num = 0;
-	int mod;
-	cin >> mod;
-	if (mod == -2 || mod == 4) {
-		cin >> max_cut_num;
-		cut_num = max_cut_num;
-	}
-	vector <Part> db;
-	db.clear();
-	tot = 0;
-	while (!cin.eof()) {
-		Part t;
-		t.input();
-		//if (t.quality == -1) continue;
-		db.push_back(t);
-	}
-	//select(db, mod);
-	 select(db, 1);
-	 //select(db, 2);
-	 //select(db, 3);
 }
 
 int main(int argc, char const *argv[]) {
-	freopen("data-3mod.dat", "r", stdin);
+	freopen("data.dat", "r", stdin);
 	freopen("result.dat", "w", stdout);
 	gao();
-	cout << "EOF" << endl;
+	printf("\nEOF\n");
 	return 0;
 }
