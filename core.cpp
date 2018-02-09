@@ -1,5 +1,5 @@
 #include <bits/stdc++.h>
-#define _ ios_a::sync_with_stdio(0);fin.tie(0);
+//#decine _ ios_a::sync_with_stdio(0);cin.tie(0);
 #define QH freopen("qh.in", "r", stdin);
 #define SS ios::sync_with_stdio(false);
 #define LL long long
@@ -10,7 +10,7 @@
 #define MP(x,y) make_pair(x,y)
 #define MAX(a,b) a=max(a,b)
 #define MIN(a,b) a=min(a,b)
-//#define mp make_pair
+//#decine mp make_pair
 #define pb push_back
 #define gi(a) scanf("%d",&a);
 #define gi2(a,b) scanf("%d%d",&a,&b);
@@ -32,7 +32,7 @@ const int minlen = 685;
 const int maxlen = 695;
 #define fi first
 #define se second.first
-//#define th second.second
+//#decine th second.second
 
 #define third second.second.first
 #define forth second.second.second
@@ -42,9 +42,6 @@ const int maxlen = 695;
 PIIII mp(int a, int b, int c, int d = 0) {
 	return make_pair(a, make_pair(b, make_pair(c, d)));
 }
-fstream fin;
-//fstream fout1("single_factory.out", ios::out);
-//fstream fout2("mixup_factory.out", ios::out);
 int cnt = 0;
 int tot;
 int cut_num;
@@ -52,29 +49,26 @@ vector<string> factory_cant_mix;
 struct Part {
 	void input() {
 		id = tot++;
-		fin >> factory;
+		cin >> factory;
 		if (factory != "yinhe") {
 			factory = "baotou";
 		}
-		fin >> number;
-		fin >> type;
-		string quality_s; fin >> quality_s;
+		cin >> number;
+		cin >> type;
+		string quality_s; cin >> quality_s;
 		if (quality_s == "normal") {
 			quality = 0;
 		} else if (quality_s == "impurity") {
 			quality = 1;
 		} else {
-			quality = 1;
+			quality = -1;
 		}
-		//quality = (quality_s == "normal") ? 0 : 1;
-		fin >> length;
-		fin >> matrix;
+		cin >> length;
+		cin >> matrix;
 		group = 0;
 		cut = 0;
-		//output();
 	}
 	void output() {
-		//cout << id << "\t";
 		cout << "|" ;
 		if (factory == "yinhe") {
 			cout << "银和";
@@ -83,20 +77,16 @@ struct Part {
 		} else {
 			cout << "包头";
 		}
-		//(factory == "yinhe" ? "银和" : "包头")
 		cout << "\t";
 		cout << "|\t" << number << "\t\t";
 		cout << "|" << type << "\t\t";
 		cout << "|" << ((quality == 0) ? "正常" : "杂质") << "\t";
 		printf("|%4d\t", length);
-		//cout << "|" << length << "\t\t";
-		//cout << matrix << "\t";
 		if (group > 0) {
 			printf("|%4d\t", group);
 		} else {
 			printf("|   无\t");
 		}
-		//cout << "|" << group << "\t\t";
 		cout << "  |" << (cut ? "切" : "") << endl;
 	}
 	int id;//硅棒序号
@@ -127,32 +117,9 @@ bool cmp_id(const Part a, const Part b) {
 int check(int val) {
 	if (val < minlen) return -1;
 	else if (val >= minlen && val <= maxlen) return 1;
-	//else if (val > maxlen)
-	return 0;
+	return 0;//else if (val > maxlen)
 }
 
-
-// vector<PIII> comb;
-// void comb_erase(int p) {
-// 	for (std::vector<PIII>::iterator it = comb.begin(); it != comb.end();) {
-// 		if (it->se == p || it->th == p) {
-// 			it = comb.erase(it);
-// 		} else {
-// 			++it;
-// 		}
-// 	}
-// }
-// vector<PIII> comb4;
-// void comb4_erase(int p) {
-// 	for (std::vector<PIII>::iterator it = comb4.begin(); it != comb4.end();) {
-// 		if (it->se == p || it->th == p) {
-// 			it = comb4.erase(it);
-// 		} else {
-// 			++it;
-// 		}
-// 	}
-// }
-//
 vector<Part> calc4(vector<Part> v, int if_cut) {
 
 	vector<Part> result;
@@ -298,7 +265,204 @@ vector<Part> calc3(vector<Part> v, int if_cut) {
 	// }
 	return result;
 }
+vector<Part> calc4_op(vector<Part> v) {
 
+	vector<Part> result;
+	result.clear();
+	for (std::vector<Part>::iterator it = v.begin(); it != v.end();) {
+		if (it->group > 0) {
+			result.pb(*it);
+			it = v.erase(it);
+		} else {
+			if (it->group == -1) {
+				it->group = 0;
+			}
+			++it;
+		}
+	}
+	sort(v.begin(), v.end(), cmp_length);
+	// for (std::vector<Part>::iterator it = v.begin(); it != v.end(); ++it) {
+	// 	it->output();
+	// }
+	//vector<PIII> comb;
+	vector<PIIII> comb;
+	comb.clear();
+	int size = v.size();
+	for (int i = 2; i < size; ++i) { //组对(i+j+k,i,j,k)
+		for (int j = 1; j < i; ++j) {
+			for (int k = 0; k < j; ++k) {
+				comb.pb(mp(v[i].length + v[j].length + v[k].length, i, j, k));
+			}
+		}
+	}
+	sort(comb.begin(), comb.end());
+	//reverse(comb.begin(),comb.end());
+	for (int p = v.size() - 1; p >= 0; --p) {
+		//if (comb.size() == 0) break;
+		//comb_erase(p);
+		if (v[p].group != 0) {
+			continue;
+			//result.pb(v[p]);
+			//comb_erase(p);
+		} else {
+			vector<PIIII>::iterator mit, it_low, it_upper;
+			it_low = lower_bound(comb.begin(), comb.end(), mp(minlen - v[p].length, 0, 0, 0));
+			it_upper = upper_bound(comb.begin(), comb.end(), mp(maxlen - v[p].length + 1, 0, 0, 0));
+			--it_upper;
+			mit = comb.end();
+			if (it_low != comb.end()) {
+				for (std::vector<PIIII>::iterator it = it_low; it != it_upper && it != comb.end(); ++it) {
+					if (v[it->se].group == 0 && v[it->third].group == 0 && v[it->forth].group == 0 && p != it->se) {
+						if (mit == comb.end() || (it->se > mit->se && check(mit->fi + v[p].length) != 1)) { //启发式
+							mit = it;
+						}
+					}
+				}
+			}
+			if (check(mit->fi + v[p].length) != 1) {
+				mit = comb.end();
+			}
+			if (mit == comb.end()) {
+				v[p].group = -1;
+				//result.pb(v[p]);
+				//comb_erase(p);
+			} else {
+				cnt++;
+				v[p].group = cnt;
+				v[mit->se].group = cnt;
+				v[mit->third].group = cnt;
+				v[mit->forth].group = cnt;
+				// result.pb(v[p]);
+				// result.pb(v[mit->se]);
+				// result.pb(v[mit->th]);
+				//int t1 = mit->se;
+				//int t2 = mit->th;
+				//comb_erase(p);
+				//comb_erase(mit->se);//坑！
+				//comb_erase(mit->th);
+				//comb_erase(t1);
+				//comb_erase(t2);
+			}
+		}
+	}
+	//it[1] = lower_bound(comb.begin(), comb.end(), mpiii(1, 0, 0));
+	// for (int i = 0; i < comb.size(); ++i) {
+	// 	//printf("%d %d %d\n", comb[i].fi,comb[i].se,comb[i].th);
+	// }
+
+	for (int p = 0; p < size; ++p) {
+		result.pb(v[p]);
+	}
+	// printf("result:\n");
+	// sort(result.begin(), result.end(), cmp_group);
+	// for (int i = 0; i < result.size(); ++i) {
+	// 	//cout << i << " ";
+	// 	result[i].output();
+	// }
+	return result;
+}
+vector<Part> calc3_op(vector<Part> v) {
+	vector<Part> result;
+	result.clear();
+	for (std::vector<Part>::iterator it = v.begin(); it != v.end();) {
+		if (it->group > 0) {
+			result.pb(*it);
+			it = v.erase(it);
+		} else {
+			if (it->group == -1) {
+				it->group = 0;
+			}
+			++it;
+		}
+	}
+	sort(v.begin(), v.end(), cmp_length);
+
+	vector<PIIII> comb;
+	comb.clear();
+	int size = v.size();
+	for (int i = 1; i < size; ++i) { //组对(i+j,i,j)
+		for (int j = 0; j < i; ++j) {
+			comb.pb(mp(v[i].length + v[j].length, i, j));
+		}
+	}
+	sort(comb.begin(), comb.end());
+	//reverse(comb.begin(),comb.end());
+	for (int p = v.size() - 1; p >= 0; --p) {
+		//if (comb.size() == 0) break;
+		//comb_erase(p);
+		if (v[p].group != 0) {
+			continue;
+			//result.pb(v[p]);
+			//comb_erase(p);
+		} else {
+			vector<PIIII>::iterator mit, it_low, it_upper;
+			it_low = lower_bound(comb.begin(), comb.end(), mp(minlen - v[p].length, 0, 0));
+			it_upper = upper_bound(comb.begin(), comb.end(), mp(maxlen - v[p].length + 1, 0, 0));
+			--it_upper;
+			// if(it_low==it_upper) {
+			// 	v[p].group = -1;
+			// 	continue;
+			// }
+			mit = comb.end();
+			if (it_low != comb.end()) {
+				for (std::vector<PIIII>::iterator it = it_low; it != it_upper && it != comb.end(); ++it) {
+					if (v[it->se].group == 0 && v[it->third].group == 0 && p != it->se) {
+						if (mit == comb.end() || (it->se > mit->se && check(it->fi + v[p].length) == 1)) { //启发式，调优点
+							mit = it;
+						}
+					}
+				}
+			}
+			if (check(mit->fi + v[p].length) != 1) {
+				mit = comb.end();
+			}
+			if (mit == comb.end()) {
+				v[p].group = -1;
+				//result.pb(v[p]);
+				//comb_erase(p);
+			} else {
+				cnt++;
+
+				v[p].group = cnt;
+				v[mit->se].group = cnt;
+				v[mit->third].group = cnt;
+				// if (cnt == 2) {//debug
+				// 	debug(12580);
+				// 	cout << endl;
+				// 	v[p].output();
+				// 	v[mit->se].output();
+				// 	v[mit->third].output();
+
+				// }
+				// result.pb(v[p]);
+				// result.pb(v[mit->se]);
+				// result.pb(v[mit->th]);
+				//int t1 = mit->se;
+				//int t2 = mit->th;
+				//comb_erase(p);
+				//comb_erase(mit->se);//坑！
+				//comb_erase(mit->th);
+				//comb_erase(t1);
+				//comb_erase(t2);
+			}
+		}
+	}
+	//it[1] = lower_bound(comb.begin(), comb.end(), mpiii(1, 0, 0));
+	// for (int i = 0; i < comb.size(); ++i) {
+	// 	//printf("%d %d %d\n", comb[i].fi,comb[i].se,comb[i].th);
+	// }
+
+	for (int p = 0; p < size; ++p) {
+		result.pb(v[p]);
+	}
+	// printf("result:\n");
+	// sort(result.begin(), result.end(), cmp_group);
+	// for (int i = 0; i < result.size(); ++i) {
+	// 	//cout << i << " ";
+	// 	result[i].output();
+	// }
+	return result;
+}
 vector<Part> calc4(vector<Part> v) {
 
 	vector<Part> result;
@@ -347,7 +511,7 @@ vector<Part> calc4(vector<Part> v) {
 			if (it_low != comb.end()) {
 				for (std::vector<PIIII>::iterator it = it_low; it != it_upper && it != comb.end(); ++it) {
 					if (v[it->se].group == 0 && v[it->third].group == 0 && v[it->forth].group == 0 && p != it->se) {
-						if (mit == comb.end() || (it->se < mit->se && check(mit->fi + v[p].length) != 1)) { //启发式剪枝，调优点
+						if (mit == comb.end() || (it->se < mit->se && check(mit->fi + v[p].length) != 1)) { //启发式
 							mit = it;
 						}
 					}
@@ -497,64 +661,52 @@ vector<Part> calc3(vector<Part> v) {
 	// }
 	return result;
 }
-int reportid;
-int max_cut;
-int rest_num;
-int rest_len;
-int used_len;
-int used_cnt;
-int cut_cnt;
 void report(vector<Part> a) {
+	int rest_cnt = 0;
+	int used_cnt = 0;
 	printf("|—--------------—--------------—--------------—--------------\n");
 	printf("厂家\t\t\t锭号\t\t棒号\t\t杂质情况\t  长度\t   分组\t  切割状况\n");
 	sort(a.begin(), a.end(), cmp_group);
-	//a = a;
-	//reverse(a.begin(), a.end());
-	//
-	// for (int i = 0; i < a.size(); ++i) {
-	// 	a[i].output();
-	// }
-	for (int i = 0; i < a.size(); ++i) {
-		//a[i].output();
-		if (a[i].group <= 0) continue;
-		reportid++;
-		printf("第%d组:\n", reportid);
-		int sum = a[i].length;
-		a[i].output();
-		while (i + 1 < a.size() && a[i].group == a[i + 1].group) {
-			sum += a[i + 1].length;
-			a[i + 1].output();
+	for (std::vector<Part>::iterator it = a.begin(); it != a.end();) {
+		if (it->group <= 0) {
+			it->output();
+			rest_cnt++;
+			it = a.erase(it);
+		} else {
 			used_cnt++;
-			used_len += a[i + 1].length;
-			++i;
+			++it;
 		}
-		printf("\n");
-		printf("\t\t\t\t\t\t\t拼接长度 = %d", sum);
-		if(check(sum)==1)printf("，符合要求\n");
-		//if (check(sum) != 1) cout << "error" << endl;
-		if (i + 1 == a.size()) break;
 	}
-	printf("剩余:\n");
+	sort(a.begin(), a.end(), cmp_group);
+	int groupid = 0, sum = 0;
 	for (int i = 0; i < a.size(); ++i) {
-		if (a[i].group <= 0) {
-			a[i].output();
-			rest_num++;
-			rest_len += a[i].length;
+		if ((!groupid) || a[i - 1].group != a[i].group) {
+			groupid++;
+			if (sum) {
+				printf("\n\t\t\t\t\t\t\t拼接长度 = %d%s\n", sum, (check(sum) == 1) ? ", 符合要求" : ".");
+			}
+			sum = 0;
+			printf("第%d组:\n", groupid);
 		}
+		a[i].output();
+		sum += a[i].length;
 	}
-	//printf("%d\n", cut_num);
+	printf("\n\t\t\t\t\t\t\t拼接长度 = %d%s\n", sum, (check(sum) == 1) ? ", 符合要求" : ".");
+	printf("used_cnt = %d\n", used_cnt);
+	printf("rest_cnt = %d\n", rest_cnt);
+	printf("tot = %d\n", used_cnt + rest_cnt);
+	printf("rate = %.2f%%\n", 1.0 * used_cnt / (used_cnt + rest_cnt) * 100);
 	printf("|—--------------—--------------—--------------—--------------\n");
 }
-vector<Part> calc(vector<Part> db) {
+vector<Part> calc(vector<Part> db, int if_cut = 0) {
+	// db = calc3_op(db);
+	// db = calc4_op(db);
 	db = calc3(db);
-	//report(a);
 	db = calc4(db);
-	//report(a);
-	db = calc3(db, 1);
-	//report(a);
-	db = calc4(db, 1);
-	//report(a);
-
+	if (if_cut) {
+		db = calc3(db, 1);
+		db = calc4(db, 1);
+	}
 	return db;
 }
 vector<Part> mg(vector<Part> a, vector<Part> b) {
@@ -564,182 +716,109 @@ vector<Part> mg(vector<Part> a, vector<Part> b) {
 	}
 	return a;
 }
-void select(vector<Part> db) {
+void select(vector<Part> db, int mod) {
 	cnt = 0;
-	reportid = 0;
-	vector<Part> bt_a_zc;
-	bt_a_zc.clear();
-	vector<Part> bt_a_zz;
-	bt_a_zz.clear();
-	vector<Part> bt_b_zc;
-	bt_b_zc.clear();
-	vector<Part> bt_b_zz;
-	bt_b_zz.clear();
-	vector<Part> bt_c_zc;
-	bt_c_zc.clear();
-	vector<Part> bt_c_zz;
-	bt_c_zz.clear();
-	vector<Part> yh_a_zc;
-	yh_a_zc.clear();
-	vector<Part> yh_a_zz;
-	yh_a_zz.clear();
-	vector<Part> yh_b_zc;
-	yh_b_zc.clear();
-	vector<Part> yh_b_zz;
-	yh_b_zz.clear();
-	vector<Part> yh_c_zc;
-	yh_c_zc.clear();
-	vector<Part> yh_c_zz;
-	yh_c_zz.clear();
+	vector<Part> bt_a_0; bt_a_0.clear();
+	vector<Part> bt_a_1; bt_a_1.clear();
+	vector<Part> bt_b_0; bt_b_0.clear();
+	vector<Part> bt_b_1; bt_b_1.clear();
+	vector<Part> bt_c_0; bt_c_0.clear();
+	vector<Part> bt_c_1; bt_c_1.clear();
+	vector<Part> yh_a_0; yh_a_0.clear();
+	vector<Part> yh_a_1; yh_a_1.clear();
+	vector<Part> yh_b_0; yh_b_0.clear();
+	vector<Part> yh_b_1; yh_b_1.clear();
+	vector<Part> yh_c_0; yh_c_0.clear();
+	vector<Part> yh_c_1; yh_c_1.clear();
 	int size = db.size();
-	for (int i = 0; i < size; ++i) {//暂只指定工厂
+	for (int i = 0; i < size; ++i) {
 		if (db[i].factory == "baotou" && db[i].type == 'A' && db[i].quality == 0) {
-			bt_a_zc.pb(db[i]);
+			bt_a_0.pb(db[i]);
 		} else if (db[i].factory == "baotou" && db[i].type == 'A' && db[i].quality == 1) {
-			bt_a_zz.pb(db[i]);
+			bt_a_1.pb(db[i]);
 		}
 
 		else if (db[i].factory == "baotou" && db[i].type == 'B' && db[i].quality == 0) {
-			bt_b_zc.pb(db[i]);
+			bt_b_0.pb(db[i]);
 		} else if (db[i].factory == "baotou" && db[i].type == 'B' && db[i].quality == 1) {
-			bt_b_zz.pb(db[i]);
+			bt_b_1.pb(db[i]);
 		}
 
 		else if (db[i].factory == "baotou" && db[i].type == 'C' && db[i].quality == 0) {
-			bt_c_zc.pb(db[i]);
+			bt_c_0.pb(db[i]);
 		} else if (db[i].factory == "baotou" && db[i].type == 'C' && db[i].quality == 1) {
-			bt_c_zz.pb(db[i]);
+			bt_c_1.pb(db[i]);
 		}
 
 		else if (db[i].factory == "yinhe" && db[i].type == 'A' && db[i].quality == 0) {
-			yh_a_zc.pb(db[i]);
+			yh_a_0.pb(db[i]);
 		} else if (db[i].factory == "yinhe" && db[i].type == 'A' && db[i].quality == 1) {
-			yh_a_zz.pb(db[i]);
+			yh_a_1.pb(db[i]);
 		}
 
 		else if (db[i].factory == "yinhe" && db[i].type == 'B' && db[i].quality == 0) {
-			yh_b_zc.pb(db[i]);
+			yh_b_0.pb(db[i]);
 		} else if (db[i].factory == "yinhe" && db[i].type == 'B' && db[i].quality == 1) {
-			yh_b_zz.pb(db[i]);
+			yh_b_1.pb(db[i]);
 		}
 
 		else if (db[i].factory == "yinhe" && db[i].type == 'C' && db[i].quality == 0) {
-			yh_c_zc.pb(db[i]);
+			yh_c_0.pb(db[i]);
 		} else if (db[i].factory == "yinhe" && db[i].type == 'C' && db[i].quality == 1) {
-			yh_c_zz.pb(db[i]);
+			yh_c_1.pb(db[i]);
 		}
 	}
-	int flag = 1;
-
-	if (flag == 1) {
-		cnt = 0;
-		vector<Part> c;
-		cut_num = max_cut;
-		printf("银和 A区 正常棒:\n");
-		c.clear();
-		c = calc(yh_a_zc);
-		report(c);
-		cut_cnt += (max_cut - cut_num);
-		cut_num = max_cut;
-		printf("银和 A区 杂质棒:\n");
-		c.clear();
-		c = calc(yh_a_zz);
-		report(c);
-		cut_cnt += (max_cut - cut_num);
-		cut_num = max_cut;
-		printf("银和 B区 正常棒 :\n");
-		c.clear();
-		c = calc(yh_b_zc);
-		report(c);
-		cut_cnt += (max_cut - cut_num);
-		cut_num = max_cut;
-		printf("银和 B区 杂质棒:\n");
-		c.clear();
-		c = calc(yh_b_zz);
-		report(c);
-		cut_cnt += (max_cut - cut_num);
-		cut_num = max_cut;
-		printf("银和 C区 正常棒:\n");
-		c.clear();
-		c = calc(yh_c_zc);
-		report(c);
-		cut_cnt += (max_cut - cut_num);
-		cut_num = max_cut;
-		printf("银和 C区 杂质棒:\n");
-		c.clear();
-		c = calc(yh_c_zz);
-		report(c);
-		cut_cnt += (max_cut - cut_num);
-		cut_num = max_cut;
-		printf("包头 A区 正常棒+杂质棒:\n");
-		c.clear();
-		c = calc(mg(bt_a_zz, bt_a_zc));
-		report(c);
-		cut_cnt += (max_cut - cut_num);
-		cut_num = max_cut;
-		printf("包头 B+C区 正常棒:\n");
-		c.clear();
-		c = calc(mg(bt_b_zc, bt_c_zc));
-		report(c);
-		cut_cnt += (max_cut - cut_num);
-		cut_num = max_cut;
-		printf("包头 B+C区 杂质棒:\n");
-		c.clear();
-		c = calc(mg(bt_b_zz, bt_c_zz));
-		report(c);
-		cut_cnt += (max_cut - cut_num);
-	} else {
-		cnt = 0;
-		vector<Part> c, result;
-		result.clear();
+	vector <Part> result; result.clear();
+	if (mod == 1) {
+		vector<Part> mod1; mod1.clear();
+		mod1 = mg(mod1, yh_b_0);
+		mod1 = mg(mod1, yh_b_1);
+		mod1 = mg(mod1, yh_c_0);
+		mod1 = mg(mod1, yh_c_1);
+		mod1 = mg(mod1, bt_b_0);
+		mod1 = mg(mod1, bt_b_1);
+		mod1 = mg(mod1, bt_c_0);
+		mod1 = mg(mod1, bt_c_1);
+		result = calc(mod1);
+	} else if (mod == 2) {
+		vector<Part> mod2; mod2.clear();
+		mod2 = mg(mod2, bt_b_0);
+		mod2 = mg(mod2, bt_b_1);
+		mod2 = mg(mod2, bt_c_0);
+		mod2 = mg(mod2, bt_c_1);
+		result = calc(mod2);
+	} else if (mod == 3) {
+		vector<Part> mod3; mod3.clear();
+		mod3 = mg(mod3, yh_a_1);
+		mod3 = mg(mod3, yh_b_1);
+		mod3 = mg(mod3, yh_c_1);
+		mod3 = mg(mod3, bt_a_1);
+		mod3 = mg(mod3, bt_b_1);
+		mod3 = mg(mod3, bt_c_1);
+		result = calc(mod3);
 	}
-
-	printf("共计算出 %d组拼棒方案\n", reportid);
-	printf("预设每区最大切割数 %d，请按需合理选择\n", max_cut);
-	printf("实际总切割数 % d\n", cut_cnt);
-	printf("实际利用（含切割后）棒数 % d\n", used_cnt);
-	printf("剩余（含切割后）棒数 %d\n", rest_num);
-	printf("有效利用棒长 % d\n", used_len);
-	printf("剩余棒长 %d\n", rest_len);
-	printf("有效棒长利用率%.2lf%%\n", 1.0*used_len/(used_len+rest_len)*100);
+	report(result);
 }
 void gao() {
-	fin.close();
-	cut_num = 20;
-	rest_num = 0;
-	rest_len = 0;
-	used_len = 0;
-	used_cnt = 0;
-	cut_cnt = 0;
-	// printf("input max cut_num:");
-	// cut_num=50;
-	// cin >> cut_num;
-	// system("pause");
-	// printf("print any key to start calc\n");
-	//fin.open("data.dat", ios::in);
-	fin.open("data.dat", ios::in);
-	//fout1.close();
-	//fout1.open("test.out",ios::out);
-	//fgets(title,99,stdin);
-	//fin.getline(title, 99);
-	fin >> max_cut;
-	cut_num = max_cut;
-
+	int mod;
+	cin >> mod;
 	vector <Part> db;
 	db.clear();
 	tot = 0;
-
-	while (!fin.eof()) {
+	while (!cin.eof()) {
 		Part t;
 		t.input();
+		if(t.quality==-1) continue;
 		db.push_back(t);
 	}
-	fin.close();
-
-	select(db);
+	//select(db,mod);
+	select(db, 1);
+	select(db, 2);
+	select(db, 3);
 }
 
 int main(int argc, char const *argv[]) {
+	freopen("data300.dat", "r", stdin);
 	freopen("result.dat", "w", stdout);
 	gao();
 	return 0;
