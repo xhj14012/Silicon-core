@@ -77,17 +77,17 @@ struct Part {
 		} else {
 			printf("包头");
 		}
-		printf("\t");
-		printf("|\t%s\t\t", number);
+		printf("\t\t|%s\t\t", number);
 		printf("|%s\t\t", type);
-		printf("|%s\t", ((quality == 0) ? "正常" : "杂质"));
-		printf("|%4d\t", length);
-		if (group > 0) {
-			printf("|%4d\t", group);
-		} else {
-			printf("|   无\t");
-		}
-		printf("  |%s\n", (cut ? "切" : ""));
+		printf("|%s\t\t", ((quality == 0) ? "正常" : "杂质"));
+		printf("|%4d\t\t", length);
+		printf("|%4d\t\t", group);
+		// if (group > 0) {
+		// 	printf("|%4d\t\t", group);
+		// } else {
+		// 	printf("|无\t\t");
+		// }
+		printf("|%s\n", (cut ? "切" : ""));
 	}
 	int id;//硅棒序号
 	char factory[11];
@@ -666,7 +666,7 @@ void report(vector<Part> a) {
 	rest_cnt = 0;
 	used_cnt = 0;
 	printf("|—--------------—--------------—--------------—--------------\n");
-	printf("厂家\t\t\t锭号\t\t棒号\t\t杂质情况\t  长度\t   分组\t  切割状况\n");
+	printf("+厂家\t\t+锭号\t\t+棒号\t\t+杂质情况\t+长度\t\t+分组\t\t+切割状况\n");
 	sort(a.begin(), a.end(), cmp_group);
 	for (std::vector<Part>::iterator it = a.begin(); it != a.end();) {
 		if (it->group <= 0) {
@@ -687,7 +687,7 @@ void report(vector<Part> a) {
 				printf("\n\t\t\t\t\t\t\t拼接长度 = %d%s\n", sum, (check(sum) == 1) ? ", 符合要求" : ".");
 			}
 			sum = 0;
-			printf("第%d组:\n", groupid);
+			printf("第%3d 组:\n", groupid);
 		}
 		a[i].output();
 		sum += a[i].length;
@@ -738,6 +738,7 @@ void gao() {
 		for (int i = 0; i < n; ++i) {
 			Part t;
 			t.input();
+			//if(t.quality==1)
 			db.pb(t);
 		}
 		result = mg(result, calc(db, max_cut_num));
