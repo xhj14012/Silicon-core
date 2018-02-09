@@ -309,41 +309,8 @@ vector<Part> calc3(vector<Part> v, bool if_cut = 0) {
 	// }
 	return result;
 }
-
-void gao() {
-	//fgets(title,99,stdin);
-	cin.getline(title, 99);
-	vector <Part> a;
-	a.clear();
-	while (!cin.eof()) {
-		//for (int i = 0; i < 540; ++i) {
-		Part t;
-		t.input();
-		a.push_back(t);
-	}
-	cnt = 0;
-	tot = 0;
-	a = calc3(a);
-	// printf("/******report calc3******\n");
-	// sort(a.begin(), a.end(), cmp_group);
-	// //a = a;
-	// reverse(a.begin(), a.end());
-	// for (int i = 0, g = 0; i <= a.size(); ++i) {
-	// 	if (a[i].group <= 0) continue;
-	// 	g++;
-	// 	printf("group%d:\n", g);
-	// 	int sum = a[i].length;
-	// 	a[i].output();
-	// 	while (a[i].group == a[i + 1].group) {
-	// 		sum += a[i + 1].length;
-	// 		a[i + 1].output();
-	// 		++i;
-	// 	}
-	// 	printf("sum=%d\n", sum);
-	// }
-	// printf("/******report calc3******\n");
-	a = calc4(a);
-	printf("/******report calc4******\n");
+void report(vector<Part> a) {
+	printf("/******report******\n");
 	sort(a.begin(), a.end(), cmp_group);
 	//a = a;
 	reverse(a.begin(), a.end());
@@ -360,12 +327,30 @@ void gao() {
 		}
 		printf("sum=%d\n", sum);
 	}
-	printf("/******report calc4******\n");
+	printf("/******report******\n");
+}
+void gao() {
+	//fgets(title,99,stdin);
+	cin.getline(title, 99);
+	vector <Part> a;
+	a.clear();
+	while (!cin.eof()) {
+		//for (int i = 0; i < 540; ++i) {
+		Part t;
+		t.input();
+		a.push_back(t);
+	}
+	cnt = 0;
+	tot = 0;
+	a = calc3(a);
+	//report(a);
+	a = calc4(a);
+	report(a);
 }
 
 int main(int argc, char const *argv[]) {
 	//freopen("data.dat", "r", stdin);
-	freopen("test.dat", "r", stdin);
+	freopen("test3.dat", "r", stdin);
 	freopen("test.out", "w", stdout);
 	//ifstream infile;
 	//infile.open("data.dat",ios::in);
