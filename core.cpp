@@ -44,7 +44,7 @@ PIIII mp(int a, int b, int c, int d = 0) {
 }
 int cnt = 0;
 int tot;
-int cut_num;
+int cut_num, max_cut_num;
 vector<string> factory_cant_mix;
 struct Part {
 	void input() {
@@ -692,15 +692,24 @@ void report(vector<Part> a) {
 		sum += a[i].length;
 	}
 	printf("\n\t\t\t\t\t\t\t拼接长度 = %d%s\n", sum, (check(sum) == 1) ? ", 符合要求" : ".");
-	printf("used_cnt = %d\n", used_cnt);
-	printf("rest_cnt = %d\n", rest_cnt);
-	printf("tot = %d\n", used_cnt + rest_cnt);
-	printf("rate = %.2f%%\n", 1.0 * used_cnt / (used_cnt + rest_cnt) * 100);
 	printf("|—--------------—--------------—--------------—--------------\n");
+	// printf("used_cnt = %d\n", used_cnt);
+	// printf("rest_cnt = %d\n", rest_cnt);
+	// printf("tot = %d\n", used_cnt + rest_cnt);
+	// printf("rate = %.2f%%\n", 1.0 * used_cnt / (used_cnt + rest_cnt) * 100);
+	printf("匹配数 = %d\n", used_cnt);
+	printf("未匹配数 = %d\n", rest_cnt);
+	printf("总数 = %d\n", used_cnt + rest_cnt);
+	printf("匹配率 = %.2f%%\n", 1.0 * used_cnt / (used_cnt + rest_cnt) * 100);
+	if (max_cut_num > 0) {
+		printf("最大切割数 %d\n", max_cut_num);
+		printf("实际切割数 %d\n", max_cut_num - cut_num);
+	}
+
 }
 vector<Part> calc(vector<Part> db, int if_cut = 0) {
-	// db = calc3_op(db);
-	// db = calc4_op(db);
+	db = calc3_op(db);
+	db = calc4_op(db);
 	db = calc3(db);
 	db = calc4(db);
 	if (if_cut) {
@@ -783,9 +792,9 @@ void select(vector<Part> db, int mod) {
 	} else if (mod == 2) {
 		vector<Part> mod2; mod2.clear();
 		mod2 = mg(mod2, bt_b_0);
-		mod2 = mg(mod2, bt_b_1);
+		//mod2 = mg(mod2, bt_b_1);
 		mod2 = mg(mod2, bt_c_0);
-		mod2 = mg(mod2, bt_c_1);
+		//mod2 = mg(mod2, bt_c_1);
 		result = calc(mod2);
 	} else if (mod == 3) {
 		vector<Part> mod3; mod3.clear();
@@ -796,25 +805,36 @@ void select(vector<Part> db, int mod) {
 		mod3 = mg(mod3, bt_b_1);
 		mod3 = mg(mod3, bt_c_1);
 		result = calc(mod3);
+	} else if (mod == 4) {
+		result = calc(db);
+	} else if (mod == 5) {
+		result = calc(db, 1);
 	}
 	report(result);
+	fstream fout("core.log", ios::out);
+	fout.close();
 }
 void gao() {
+	max_cut_num = 0;
 	int mod;
 	cin >> mod;
+	if (mod == 5) {
+		cin >> max_cut_num;
+		cut_num = max_cut_num;
+	}
 	vector <Part> db;
 	db.clear();
 	tot = 0;
 	while (!cin.eof()) {
 		Part t;
 		t.input();
-		if(t.quality==-1) continue;
+		if (t.quality == -1) continue;
 		db.push_back(t);
 	}
-	//select(db,mod);
-	select(db, 1);
-	select(db, 2);
-	select(db, 3);
+	select(db, mod);
+	// select(db, 1);
+	// select(db, 2);
+	// select(db, 3);
 }
 
 int main(int argc, char const *argv[]) {
