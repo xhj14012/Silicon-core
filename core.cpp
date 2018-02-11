@@ -764,6 +764,7 @@ void report(vector<silicon> a, int p) {
 	}
 	printf("\n\t\t\t\t\t\t\t拼接长度 = %d%s\n", sum, (check(sum) == 0) ? ", 符合要求" : ".");
 	printf("|—--------------—--------------—--------------—--------------\n");
+	printf("成功匹配组数 = %d\n", cnt);
 	printf("匹配数 = %d\n", tot_cnt_used[p]);
 	printf("未匹配数 = %d\n", tot_cnt_rest[p]);
 	printf("报废数 = %d\n", tot_cnt_scrap[p]);
@@ -793,23 +794,42 @@ vector<silicon> calc(vector<silicon> db) {
 		}
 	}
 	finish.clear();
-	if (1) {
-		db = calc3_pro(db);
-		db = calc4_pro(db);
-	} else {
+	int flag = 4;
+	if (flag == 1) {
 		db = calc3(db);
 		db = calc4(db);
-	}
-	if (1) {
-		db = calc4_cut_pro(db);
-		db = calc3_cut_pro(db);
-		// db = calc4_cut_pro(db);
-		// db = calc4_cut_pro(db);
-
-		//db = calc4_cut_pro(db);
-	} else {
 		db = calc3_cut(db);
 		db = calc4_cut(db);
+	} else if (flag == 2) {
+		db = calc3_pro(db);
+		db = calc4_pro(db);
+		db = calc3_cut(db);
+		db = calc4_cut(db);
+	} else if (flag == 3) {
+		db = calc3_pro(db);
+		db = calc4_pro(db);
+		db = calc3_cut_pro(db);
+		db = calc4_cut_pro(db);
+	} else if (flag == 4) {
+		db = calc3_pro(db);
+		db = calc4_pro(db);
+		db = calc4_cut_pro(db);
+		db = calc3_cut(db);
+		db = calc4_cut(db);
+		db = calc3_cut_pro(db);
+		db = calc3_cut(db);
+		db = calc4_cut(db);
+		db = calc4_cut_pro(db);
+		db = calc3_cut(db);
+		db = calc4_cut(db);
+		db = calc3_cut_pro(db);
+		db = calc3_cut(db);
+		db = calc4_cut(db);
+	} else if (flag == 5) {
+		db = calc3_pro(db);
+		db = calc4_pro(db);
+		db = calc3_cut_pro(db);
+		db = calc4_cut_pro(db);
 	}
 	return mg(db, finish);
 }
@@ -857,9 +877,9 @@ int main(int argc, char const *argv[]) {
 	//freopen("data.dat", "r", stdin);
 	//freopen("data-mod1.dat", "r", stdin);//不区分厂家，BC区自由匹配
 	//freopen("data-mod2.dat", "r", stdin);//包头区无杂质，BC区自由匹配
-	//freopen("data-mod3.dat", "r", stdin);//不分厂家，所有杂质匹配
+	freopen("data-mod3.dat", "r", stdin);//不分厂家，所有杂质匹配
 	//freopen("data-540.dat", "r", stdin);
-	freopen("data-300.dat", "r", stdin);
+	//freopen("data-300.dat", "r", stdin);
 	freopen("result.out", "w", stdout);
 	gao();
 	printf("\nEOF\n");
