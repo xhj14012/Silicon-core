@@ -49,13 +49,18 @@ int sgn(double x) {
 }
 int cnt = 0;
 int tot;
+int cnt_calc;//计算批数
 int min_eligible_len = 685;//最小合格长度
 int max_eligible_len = 695;//最大合格长度
-int rest_cut_num;
-int max_cut_num;
-int scrap_len;
-int rest_cnt, used_cnt, scrap_cnt;
-double cut_stop_rate;
+int rest_cut_num;//剩余可截断数
+int max_cut_num;//最大可截断数
+int scrap_len;//报废长度
+
+int cnt_rest;//当前未匹配
+int cnt_used;//当前匹配
+int cnt_scrap;//当前报废
+int cnt_cut_num;//当前截断数
+double cut_stop_rate;//目标匹配率
 struct silicon {
 	void input() {
 		id = tot++;
@@ -203,11 +208,33 @@ vector<silicon> finish;
 // 	}
 // 	return v;
 // }
+double calc_rate(int _used, int _rest, int _scrap) {
+	return (1.0 * _used / (_used + _rest + _scrap) * 100);
+}
+double calc_cur_rate() {
+	return calc_rate(cnt_used, cnt_rest, cnt_scrap);
+}
+void report_cut() {
+	if (cnt_cut_num == 1) {
+		printf("匹配数\t\t未匹配数\t\t报废数\t\t总数\t\t目标匹配率\t实际匹配率\t实际截断刀数\n");
+		printf("第 %d批次\n", cnt_calc);
+	}
+	printf("|%4d\t\t", cnt_used);
+	printf("|%4d\t\t", cnt_rest);
+	printf("|%4d\t\t", cnt_scrap);
+	printf("|%4d\t\t", cnt_used + cnt_rest + cnt_scrap);
+	printf("|%.2f%%\t\t", cut_stop_rate);
+	printf("|%.2f%%\t\t", 1.0 * cnt_used / (cnt_used + cnt_rest + cnt_scrap) * 100);
+	//printf("最大截断刀数 %d\t", max_cut_num);
+	printf("|%4d\n", max_cut_num - rest_cut_num);
+}
 vector<silicon> calc3_cut(vector<silicon> v) {
 	vector<silicon> result;
 	result.clear();
 	silicon v0, v1;
-	while (rest_cut_num > 0 && 100.0 * used_cnt / (mg(mg(v,result),finish).size()) <= cut_stop_rate) {
+	while (rest_cut_num > 0 && calc_cur_rate() < cut_stop_rate) {
+		//while (rest_cut_num > 0 && 100.0 * cnt_used / (mg(mg(v, result), finish).size()) < cut_stop_rate) {
+		//while (rest_cut_num > 0) {
 		if (v.size() < 3) {
 			break;
 		}
@@ -223,7 +250,8 @@ vector<silicon> calc3_cut(vector<silicon> v) {
 
 				cnt++;
 				//printf("debug%d\n", cnt);
-				used_cnt += 3;
+				cnt_used += 3;
+				cnt_rest -= 3;
 				v0.group = cnt;
 				v1.group = cnt;
 				it->group = cnt;
@@ -232,8 +260,12 @@ vector<silicon> calc3_cut(vector<silicon> v) {
 				break;
 			} else if (check(it->length + add) == 0) {
 				cnt++;
-				used_cnt += 3;
+				cnt_used += 3;
+				cnt_rest -= 3;
+				cnt_rest++;
 				rest_cut_num--;
+				cnt_cut_num++;
+				report_cut();
 				v0.group = cnt;
 				v1.group = cnt;
 				it->cut = 1;
@@ -243,7 +275,8 @@ vector<silicon> calc3_cut(vector<silicon> v) {
 				result.pb(*it);
 				it->length = rest;
 				if (rest < scrap_len) {//报废
-					scrap_cnt++;
+					cnt_scrap++;
+					cnt_rest--;
 					it->group = inf;
 					v.erase(it);
 				} else {
@@ -254,7 +287,7 @@ vector<silicon> calc3_cut(vector<silicon> v) {
 					// 	for (int j = 0; j < i; ++j) {
 					// 		if (check(v[i].length + v[j].length + mit->length) == 1) {
 					// 			cnt++;
-					// 			used_cnt += 3;
+					// 			cnt_used += 3;
 					// 			printf("debug2%d\n", cnt);
 					// 			v[i].group = cnt;
 					// 			v[j].group = cnt;
@@ -297,6 +330,7 @@ vector<silicon> calc3_cut(vector<silicon> v) {
 	// }
 	return v;
 }
+
 vector<silicon> calc4_oppo(vector<silicon> v) {
 	sort(v.begin(), v.end(), cmp_length);
 	vector<PIIII> comb;
@@ -335,7 +369,8 @@ vector<silicon> calc4_oppo(vector<silicon> v) {
 				v[p].group = -1;
 			} else {
 				cnt++;
-				used_cnt += 4;
+				cnt_used += 4;
+				cnt_rest -= 4;
 				v[p].group = cnt;
 				v[mit->se].group = cnt;
 				v[mit->third].group = cnt;
@@ -395,7 +430,8 @@ vector<silicon> calc3_oppo(vector<silicon> v) {
 				v[p].group = -1;
 			} else {
 				cnt++;
-				used_cnt += 3;
+				cnt_used += 3;
+				cnt_rest -= 3;
 				v[p].group = cnt;
 				v[mit->se].group = cnt;
 				v[mit->third].group = cnt;
@@ -548,9 +584,9 @@ void report(vector<silicon> a) {
 	// for (int i = 0; i < a.size(); ++i) {
 	// 	a[i].output();
 	// }
-	// rest_cnt = 0;
-	// used_cnt = 0;
-	// scrap_cnt = 0;
+	// cnt_rest = 0;
+	// cnt_used = 0;
+	// cnt_scrap = 0;
 	printf("|—--------------—--------------—--------------—--------------\n");
 	printf("+厂家\t\t+锭号\t\t+棒号\t\t+杂质情况\t+长度\t\t+分组\t\t+切割状况\n");
 	printf("未使用:\n");
@@ -558,10 +594,10 @@ void report(vector<silicon> a) {
 	for (std::vector<silicon>::iterator it = a.begin(); it != a.end();) {
 		if (it->group <= 0) {
 			it->output();
-			rest_cnt++;
+			//cnt_rest++;
 			it = a.erase(it);
 		} else {
-			//used_cnt++;
+			//cnt_used++;
 			++it;
 		}
 	}
@@ -570,10 +606,10 @@ void report(vector<silicon> a) {
 	for (std::vector<silicon>::iterator it = a.begin(); it != a.end();) {
 		if (it->group == inf) {
 			it->output();
-			//scrap_cnt++;
+			//cnt_scrap++;
 			it = a.erase(it);
 		} else {
-			//used_cnt++;
+			//cnt_used++;
 			++it;
 		}
 	}
@@ -591,41 +627,46 @@ void report(vector<silicon> a) {
 			printf("第%3d 组:\n", groupid);
 		}
 		a[i].output();
-		//used_cnt++;
+		//cnt_used++;
 		sum += a[i].length;
 	}
 	printf("\n\t\t\t\t\t\t\t拼接长度 = %d%s\n", sum, (check(sum) == 1) ? ", 符合要求" : ".");
 	printf("|—--------------—--------------—--------------—--------------\n");
-	printf("匹配数 = %d\n", used_cnt);
-	printf("未匹配数 = %d\n", rest_cnt);
-	printf("报废数 = %d\n", scrap_cnt);
-	printf("总数 = %d\n", used_cnt + rest_cnt + scrap_cnt);
+	printf("匹配数 = %d\n", cnt_used);
+	printf("未匹配数 = %d\n", cnt_rest);
+	printf("报废数 = %d\n", cnt_scrap);
+	printf("总数 = %d\n", cnt_used + cnt_rest + cnt_scrap);
 	printf("目标匹配率 = %.2f%%\n", cut_stop_rate);
-	printf("实际匹配率 = %.2f%%\n", 1.0 * used_cnt / (used_cnt + rest_cnt + scrap_cnt) * 100);
+	printf("实际匹配率 = %.2f%%\n", 1.0 * cnt_used / (cnt_used + cnt_rest + cnt_scrap) * 100);
 	if (max_cut_num > -1) {
 		printf("最大截断刀数 %d\n", max_cut_num);
 		printf("实际截断刀数 %d\n", max_cut_num - rest_cut_num);
 	}
 
 }
+
+vector<int> tot_cnt_rest, tot_cnt_used, tot_cnt_scrap;
 vector<silicon> calc(vector<silicon> db) {
+	cnt_rest = 0;
+	cnt_used = 0;
+	cnt_scrap = 0;
+	cnt_cut_num = 0;
+	int size = db.size();
+	for (int i = 0; i < size; ++i) {
+		cnt_rest++;
+		if (db[i].length < scrap_len) {
+			db[i].group = inf;
+			cnt_scrap++;
+			cnt_rest--;
+		}
+	}
 	finish.clear();
-	//if (1) {
 	db = calc3_oppo(db);
 	db = calc4_oppo(db);
-	// } else {
-	// 	db = calc3(db);
-	// 	db = calc4(db);
-	// }
-	//if (rest_cut_num > 0) {
 	db = calc3_cut(db);
-	// if (rest_cut_num > 0) {
-	// 	db = calc4_cut(db);
-	// }
-	//}
 	return mg(db, finish);
 }
-
+vector<vector<silicon> > tot_db;
 void gao() {
 	int n;
 	scanf("%d", &min_eligible_len);
@@ -634,33 +675,39 @@ void gao() {
 	scanf("%d", &max_cut_num);
 	scanf("%lf", &cut_stop_rate);
 	cnt = 0;
-	rest_cnt = 0;
-	used_cnt = 0;
-	scrap_cnt = 0;
+	cnt_calc = 0;
+	tot_db.resize(1);
+	tot_db[0].clear();
+	tot_cnt_rest.resize(1);
+	tot_cnt_used.resize(1);
+	tot_cnt_scrap.resize(1);
+	tot_cnt_rest[0] = 0;
+	tot_cnt_used[0] = 0;
+	tot_cnt_scrap[0] = 0;
 	rest_cut_num = max_cut_num;
 	vector<silicon> result;
 	result.clear();
 	while (~scanf("%d", &n)) {
+		cnt_calc++;
 		vector<silicon>db; db.clear();
 		for (int i = 0; i < n; ++i) {
-			silicon t;
-			t.input();
-			if (t.length < scrap_len) {
-				t.group = inf;
-				scrap_cnt++;
-			}
-			db.pb(t);
+			silicon t; t.input(); db.pb(t);
 		}
-		result = mg(result, calc(db));
+		db = calc(db);
+		tot_db.pb(db);
+		tot_db[0] = mg(tot_db[0], db);
+		tot_cnt_rest.pb(cnt_rest);
+		tot_cnt_used.pb(cnt_used);
+		tot_cnt_scrap.pb(cnt_scrap);
 	}
-	report(result);
+	report(tot_db[0]);
 }
 
 int main(int argc, char const *argv[]) {
 	//freopen("data.dat", "r", stdin);
-	//freopen("data-mod1.dat", "r", stdin);//不区分厂家，BC区自由匹配https://paste.ubuntu.com/26546275/
+	freopen("data-mod1.dat", "r", stdin);//不区分厂家，BC区自由匹配https://paste.ubuntu.com/26546275/
 	//freopen("data-mod2.dat", "r", stdin);//包头区无杂质，BC区自由匹配https://paste.ubuntu.com/26546278/
-	freopen("data-mod3.dat", "r", stdin);//不分厂家，所有杂质匹配https://paste.ubuntu.com/26546281/
+	//freopen("data-mod3.dat", "r", stdin);//不分厂家，所有杂质匹配https://paste.ubuntu.com/26546281/
 	//freopen("data-540.dat", "r", stdin);
 	//freopen("data-300.dat", "r", stdin);
 	freopen("result.out", "w", stdout);
