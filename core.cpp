@@ -276,19 +276,21 @@ vector<silicon> calc4_cut_pro(vector<silicon> v) {
 			continue;
 		} else {
 			vector<PIIII>::iterator mit, it_low;
-			it_low = lower_bound(comb.begin(), comb.end(), mp(min_eligible_len + 50 - v[p].length, 0, 0, 0));
+			it_low = lower_bound(comb.begin(), comb.end(), mp(min_eligible_len - v[p].length, 0, 0, 0));
 			//it_upper = upper_bound(comb.begin(), comb.end(), mp(max_eligible_len - v[p].length + 1, 0, 0));
 			mit = comb.end();
 			std::vector<PIIII>::iterator it = comb.end();
 			--it;
 			if (it_low != comb.end())
 				for (; it != it_low; --it) {
-
 					if (v[it->se].group == 0 && v[it->third].group == 0 && v[it->forth].group == 0 && p != it->forth) {
 						if (check(it->fi + v[p].length) > 0
+							&& v[p].length + it->first- min_eligible_len >= scrap_len
+						        && min_eligible_len - v[p].length + v[it->third].length + v[it->forth].length >= scrap_len
 						        && check(v[p].length + v[it->third].length + v[it->forth].length) < 0) { //注意p+j+k已经过大的情况
-							if (mit == comb.end() || (it->forth > mit->forth)) { //启发式
+							if (mit == comb.end() || (it->se > mit->se)) { //启发式
 								mit = it;
+								//break;
 							}
 						}
 					}
@@ -349,7 +351,7 @@ vector<silicon> calc3_cut_pro(vector<silicon> v) {
 			continue;
 		} else {
 			vector<PIIII>::iterator mit, it_low;
-			it_low = lower_bound(comb.begin(), comb.end(), mp(min_eligible_len + 50 - v[p].length, 0, 0, 0));
+			it_low = lower_bound(comb.begin(), comb.end(), mp(min_eligible_len - v[p].length, 0, 0, 0));
 			//it_upper = upper_bound(comb.begin(), comb.end(), mp(max_eligible_len - v[p].length + 1, 0, 0));
 			mit = comb.end();
 			std::vector<PIIII>::iterator it = comb.end();
@@ -358,9 +360,12 @@ vector<silicon> calc3_cut_pro(vector<silicon> v) {
 				for (; it != it_low; --it) {
 					if (v[it->se].group == 0 && v[it->third].group == 0 && p != it->third) {
 						if (check(it->fi + v[p].length) > 0
+								&& v[p].length + it->first- min_eligible_len >= scrap_len
+						        && min_eligible_len - v[p].length + v[it->third].length >= scrap_len
 						        && check(v[p].length + v[it->third].length) < 0) { //注意p+j已经过大的情况
-							if (mit == comb.end() || (it->third > mit->third )) {//启发式
+							if (mit == comb.end() || (it->se > mit->se )) {//启发式
 								mit = it;
+								//break;
 							}
 						}
 					}
@@ -608,8 +613,10 @@ vector<silicon> calc4_pro(vector<silicon> v) {
 			if (it_low != comb.end()) {
 				for (std::vector<PIIII>::iterator it = it_low; it != it_upper && it != comb.end(); ++it) {
 					if (v[it->se].group == 0 && v[it->third].group == 0 && v[it->forth].group == 0 && p != it->se) {
-						if (mit == comb.end() || (it->se >= mit->se && check(mit->fi + v[p].length) != 0)) { //启发式
-							mit = it;
+						if (check(mit->fi + v[p].length) != 0) {
+							if (mit == comb.end() || it->se >= mit->se) { //启发式
+								mit = it;
+							}
 						}
 					}
 				}
@@ -956,18 +963,18 @@ vector<silicon> calc(vector<silicon> db) {
 		db = calc3_pro(db); printf("calc3_pro-%d\n", cnt);
 		db = calc4_pro(db); printf("calc4_pro-%d\n", cnt);
 	} else if (flag == 6) {
-		db = calc3_pro(db); printf("calc3_pro-%d\n", cnt);
-		db = calc4_pro(db); printf("calc4_pro-%d\n", cnt);
+		db = calc3_pro(db);// printf("calc3_pro-%d\n", cnt);
+		db = calc4_pro(db);// printf("calc4_pro-%d\n", cnt);
 		if (db.size() <= 100)
-			db = calc4_cut_pro(db); printf("calc4_pro-%d\n", cnt);
-		db = calc3_cut_pro(db); printf("calc3_cut_pro-%d\n", cnt);
-		 db = calc3_pro(db); printf("calc3_pro-%d\n", cnt);
-		 db = calc4_pro(db); printf("calc4_pro-%d\n", cnt);
+			db = calc4_cut_pro(db);// printf("calc4_pro-%d\n", cnt);
+		db = calc3_cut_pro(db);// printf("calc3_cut_pro-%d\n", cnt);
+		db = calc3_pro(db);// printf("calc3_pro-%d\n", cnt);
+		db = calc4_pro(db);// printf("calc4_pro-%d\n", cnt);
 
-		db = calc4_cut_pro(db); printf("calc4_pro-%d\n", cnt);
-		db = calc3_cut_pro(db); printf("calc3_cut_pro-%d\n", cnt);
-		 db = calc3_pro(db); printf("calc3_pro-%d\n", cnt);
-		 db = calc4_pro(db); printf("calc4_pro-%d\n", cnt);
+		db = calc4_cut_pro(db);// printf("calc4_pro-%d\n", cnt);
+		db = calc3_cut_pro(db);// printf("calc3_cut_pro-%d\n", cnt);
+		db = calc3_pro(db);// printf("calc3_pro-%d\n", cnt);
+		db = calc4_pro(db);// printf("calc4_pro-%d\n", cnt);
 		// db = calc3_cut_pro(db); printf("calc3_cut_pro-%d\n", cnt);
 		// db = calc3_pro(db); printf("calc3_pro-%d\n", cnt);
 		// db = calc4_pro(db); printf("calc4_pro-%d\n", cnt);
@@ -1018,8 +1025,8 @@ void gao() {
 }
 
 int main(int argc, char const *argv[]) {
-	freopen("data.dat", "r", stdin);
-	//freopen("data-mod1.dat", "r", stdin);//不区分厂家，BC区自由匹配
+	//freopen("data.dat", "r", stdin);
+	freopen("data-mod1.dat", "r", stdin);//不区分厂家，BC区自由匹配
 	//freopen("data-mod2.dat", "r", stdin);//包头区无杂质，BC区自由匹配
 	//freopen("data-mod3.dat", "r", stdin);//不分厂家，所有杂质匹配
 	//freopen("data-540.dat", "r", stdin);
