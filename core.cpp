@@ -1031,7 +1031,7 @@ int main(int argc, char const *argv[]) {
 	//freopen("data-mod3.dat", "r", stdin);//不分厂家，所有杂质匹配
 	//freopen("data-540.dat", "r", stdin);
 	//freopen("data-300.dat", "r", stdin);
-	freopen("result.out", "w", stdout);
+	//freopen("result.out", "w", stdout);
 	gao();
 	printf("\nEOF\n");
 	return 0;
