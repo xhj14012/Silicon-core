@@ -148,6 +148,7 @@ void report_cut() {
 	printf("|%4d\n", cnt_cut_num);
 }
 vector<silicon> calc_cut_pro(vector<silicon> v) {
+	if (rest_cut_num <= 0) return v;
 	if (v.size() < 4) return v;
 	sort(v.begin(), v.end(), cmp_length);
 
@@ -169,6 +170,7 @@ vector<silicon> calc_cut_pro(vector<silicon> v) {
 	// printf("%d %d %d %d\n", comb[1].first,comb[1].se,comb[1].third,comb[1].forth);//540 3 1 0
 	size = v.size();
 	for (int p = 0; p < size - 3; ++p) {
+		if (rest_cut_num <= 0) break;
 		if (v[p].group != 0) {
 			continue;
 		} else {
@@ -254,6 +256,7 @@ vector<silicon> calc_cut_pro(vector<silicon> v) {
 	return v;
 }
 vector<silicon> calc4_cut_pro(vector<silicon> v) {
+	if (rest_cut_num <= 0) return v;
 	if (v.size() < 4) return v;
 	sort(v.begin(), v.end(), cmp_length);
 
@@ -272,6 +275,7 @@ vector<silicon> calc4_cut_pro(vector<silicon> v) {
 	// printf("%d %d %d %d\n", comb[1].first,comb[1].se,comb[1].third,comb[1].forth);//540 3 1 0
 	size = v.size();
 	for (int p = 0; p < size; ++p) {
+		if (rest_cut_num <= 0) break;
 		if (v[p].group != 0) {
 			continue;
 		} else {
@@ -285,7 +289,7 @@ vector<silicon> calc4_cut_pro(vector<silicon> v) {
 				for (; it != it_low; --it) {
 					if (v[it->se].group == 0 && v[it->third].group == 0 && v[it->forth].group == 0 && p != it->forth) {
 						if (check(it->fi + v[p].length) > 0
-							&& v[p].length + it->first- min_eligible_len >= scrap_len
+						        && v[p].length + it->first - min_eligible_len >= scrap_len
 						        && min_eligible_len - v[p].length + v[it->third].length + v[it->forth].length >= scrap_len
 						        && check(v[p].length + v[it->third].length + v[it->forth].length) < 0) { //注意p+j+k已经过大的情况
 							if (mit == comb.end() || (it->se > mit->se)) { //启发式
@@ -333,6 +337,7 @@ vector<silicon> calc4_cut_pro(vector<silicon> v) {
 	return v;
 }
 vector<silicon> calc3_cut_pro(vector<silicon> v) {
+	if (rest_cut_num <= 0) return v;
 	if (v.size() < 4) return v;
 	sort(v.begin(), v.end(), cmp_length);
 
@@ -347,6 +352,7 @@ vector<silicon> calc3_cut_pro(vector<silicon> v) {
 	sort(comb.begin(), comb.end());
 	size = v.size();
 	for (int p = 0; p < size; ++p) {
+		if (rest_cut_num <= 0) break;
 		if (v[p].group != 0) {
 			continue;
 		} else {
@@ -360,7 +366,7 @@ vector<silicon> calc3_cut_pro(vector<silicon> v) {
 				for (; it != it_low; --it) {
 					if (v[it->se].group == 0 && v[it->third].group == 0 && p != it->third) {
 						if (check(it->fi + v[p].length) > 0
-								&& v[p].length + it->first- min_eligible_len >= scrap_len
+						        && v[p].length + it->first - min_eligible_len >= scrap_len
 						        && min_eligible_len - v[p].length + v[it->third].length >= scrap_len
 						        && check(v[p].length + v[it->third].length) < 0) { //注意p+j已经过大的情况
 							if (mit == comb.end() || (it->se > mit->se )) {//启发式
@@ -407,10 +413,12 @@ vector<silicon> calc3_cut_pro(vector<silicon> v) {
 	return v;
 }
 vector<silicon> calc4_cut(vector<silicon> v) {
+	if (rest_cut_num <= 0) return v;
 	vector<silicon> result;
 	result.clear();
 	silicon v0, v1, v2;
 	while (rest_cut_num > 0 && calc_cur_rate() < cut_stop_rate) {
+		if (rest_cut_num <= 0) break;
 		if (v.size() < 4) {
 			break;
 		}
@@ -485,10 +493,12 @@ vector<silicon> calc4_cut(vector<silicon> v) {
 	return v;
 }
 vector<silicon> calc3_cut(vector<silicon> v) {
+	if (rest_cut_num <= 0) return v;
 	vector<silicon> result;
 	result.clear();
 	silicon v0, v1;
 	while (rest_cut_num > 0 && calc_cur_rate() < cut_stop_rate) {
+		if (rest_cut_num <= 0) break;
 		//while (rest_cut_num > 0 && 100.0 * cnt_used / (mg(mg(v, result), finish).size()) < cut_stop_rate) {
 		//while (rest_cut_num > 0) {
 		if (v.size() < 3) {
@@ -933,35 +943,35 @@ vector<silicon> calc(vector<silicon> db) {
 		db = calc3_cut_pro(db);
 		db = calc4_cut_pro(db);
 	} else if (flag == 4) {
-		db = calc3_pro(db); printf("calc3_pro-%d\n", cnt);
-		db = calc4_pro(db); printf("calc4_pro-%d\n", cnt);
-		db = calc4_cut_pro(db); printf("calc4_cut_pro-%d\n", cnt);
-		db = calc3_pro(db); printf("calc3_pro-%d\n", cnt);
-		db = calc4_pro(db); printf("calc4_pro-%d\n", cnt);
-		db = calc3_cut_pro(db); printf("calc3_cut_pro-%d\n", cnt);
-		db = calc3_pro(db); printf("calc3_pro-%d\n", cnt);
-		db = calc4_pro(db); printf("calc4_pro-%d\n", cnt);
-		db = calc4_cut_pro(db); printf("calc4_cut_pro-%d\n", cnt);
-		db = calc3_pro(db); printf("calc3_pro-%d\n", cnt);
-		db = calc4_pro(db); printf("calc4_pro-%d\n", cnt);
-		db = calc3_cut_pro(db); printf("calc3_cut_pro-%d\n", cnt);
-		db = calc3_pro(db); printf("calc3_pro-%d\n", cnt);
-		db = calc4_pro(db); printf("calc4_pro-%d\n", cnt);
+		db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
+		db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
+		db = calc4_cut_pro(db); // printf("calc4_cut_pro-%d\n", cnt);
+		db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
+		db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
+		db = calc3_cut_pro(db); // printf("calc3_cut_pro-%d\n", cnt);
+		db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
+		db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
+		db = calc4_cut_pro(db); // printf("calc4_cut_pro-%d\n", cnt);
+		db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
+		db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
+		db = calc3_cut_pro(db); // printf("calc3_cut_pro-%d\n", cnt);
+		db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
+		db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
 	} else if (flag == 5) {
-		db = calc3_pro(db); printf("calc3_pro-%d\n", cnt);
-		db = calc4_pro(db); printf("calc4_pro-%d\n", cnt);
-		db = calc3_cut_pro(db); printf("calc3_cut_pro-%d\n", cnt);
-		db = calc3_pro(db); printf("calc3_pro-%d\n", cnt);
-		db = calc4_pro(db); printf("calc4_pro-%d\n", cnt);
-		db = calc4_cut_pro(db); printf("calc4_pro-%d\n", cnt);
-		db = calc3_pro(db); printf("calc3_pro-%d\n", cnt);
-		db = calc4_pro(db); printf("calc4_pro-%d\n", cnt);
-		db = calc3_cut_pro(db); printf("calc3_cut_pro-%d\n", cnt);
-		db = calc3_pro(db); printf("calc3_pro-%d\n", cnt);
-		db = calc4_pro(db); printf("calc4_pro-%d\n", cnt);
-		db = calc4_cut_pro(db); printf("calc4_cut_pro-%d\n", cnt);
-		db = calc3_pro(db); printf("calc3_pro-%d\n", cnt);
-		db = calc4_pro(db); printf("calc4_pro-%d\n", cnt);
+		db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
+		db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
+		db = calc3_cut_pro(db); // printf("calc3_cut_pro-%d\n", cnt);
+		db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
+		db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
+		db = calc4_cut_pro(db); // printf("calc4_pro-%d\n", cnt);
+		db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
+		db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
+		db = calc3_cut_pro(db); // printf("calc3_cut_pro-%d\n", cnt);
+		db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
+		db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
+		db = calc4_cut_pro(db); // printf("calc4_cut_pro-%d\n", cnt);
+		db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
+		db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
 	} else if (flag == 6) {
 		db = calc3_pro(db);// printf("calc3_pro-%d\n", cnt);
 		db = calc4_pro(db);// printf("calc4_pro-%d\n", cnt);
@@ -1025,8 +1035,8 @@ void gao() {
 }
 
 int main(int argc, char const *argv[]) {
-	freopen("data.dat", "r", stdin);
-	//freopen("data-mod1.dat", "r", stdin);//不区分厂家，BC区自由匹配
+	//freopen("data.dat", "r", stdin);
+	freopen("data-mod1.dat", "r", stdin);//不区分厂家，BC区自由匹配
 	//freopen("data-mod2.dat", "r", stdin);//包头区无杂质，BC区自由匹配
 	//freopen("data-mod3.dat", "r", stdin);//不分厂家，所有杂质匹配
 	//freopen("data-540.dat", "r", stdin);
