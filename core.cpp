@@ -170,7 +170,7 @@ vector<silicon> calc_cut_pro(vector<silicon> v) {
 	// printf("%d %d %d %d\n", comb[1].first,comb[1].se,comb[1].third,comb[1].forth);//540 3 1 0
 	size = v.size();
 	for (int p = 0; p < size - 3; ++p) {
-		if (rest_cut_num <= 0) break;
+		if (!(rest_cut_num > 0 && calc_cur_rate() < cut_stop_rate)) break;
 		if (v[p].group != 0) {
 			continue;
 		} else {
@@ -275,7 +275,7 @@ vector<silicon> calc4_cut_pro(vector<silicon> v) {
 	// printf("%d %d %d %d\n", comb[1].first,comb[1].se,comb[1].third,comb[1].forth);//540 3 1 0
 	size = v.size();
 	for (int p = 0; p < size; ++p) {
-		if (rest_cut_num <= 0) break;
+		if (!(rest_cut_num > 0 && calc_cur_rate() < cut_stop_rate)) break;
 		if (v[p].group != 0) {
 			continue;
 		} else {
@@ -352,7 +352,7 @@ vector<silicon> calc3_cut_pro(vector<silicon> v) {
 	sort(comb.begin(), comb.end());
 	size = v.size();
 	for (int p = 0; p < size; ++p) {
-		if (rest_cut_num <= 0) break;
+		if (!(rest_cut_num > 0 && calc_cur_rate() < cut_stop_rate)) break;
 		if (v[p].group != 0) {
 			continue;
 		} else {
@@ -926,7 +926,7 @@ vector<silicon> calc(vector<silicon> db) {
 		}
 	}
 	finish.clear();
-	int flag = 6;
+	int flag = 5;
 	if (flag == 1) {
 		db = calc3(db);
 		db = calc4(db);
@@ -961,30 +961,30 @@ vector<silicon> calc(vector<silicon> db) {
 		db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
 		db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
 		db = calc3_cut_pro(db); // printf("calc3_cut_pro-%d\n", cnt);
-		db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
-		db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
+		// db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
+		// db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
 		db = calc4_cut_pro(db); // printf("calc4_pro-%d\n", cnt);
-		db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
-		db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
+		// db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
+		// db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
 		db = calc3_cut_pro(db); // printf("calc3_cut_pro-%d\n", cnt);
-		db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
-		db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
+		// db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
+		// db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
 		db = calc4_cut_pro(db); // printf("calc4_cut_pro-%d\n", cnt);
-		db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
-		db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
+		// db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
+		// db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
 	} else if (flag == 6) {
 		db = calc3_pro(db);// printf("calc3_pro-%d\n", cnt);
 		db = calc4_pro(db);// printf("calc4_pro-%d\n", cnt);
 		if (db.size() <= 100)
 			db = calc4_cut_pro(db);// printf("calc4_pro-%d\n", cnt);
 		db = calc3_cut_pro(db);// printf("calc3_cut_pro-%d\n", cnt);
-		db = calc3_pro(db);// printf("calc3_pro-%d\n", cnt);
-		db = calc4_pro(db);// printf("calc4_pro-%d\n", cnt);
+		// db = calc3_pro(db);// printf("calc3_pro-%d\n", cnt);
+		// db = calc4_pro(db);// printf("calc4_pro-%d\n", cnt);
 
 		db = calc4_cut_pro(db);// printf("calc4_pro-%d\n", cnt);
 		db = calc3_cut_pro(db);// printf("calc3_cut_pro-%d\n", cnt);
-		db = calc3_pro(db);// printf("calc3_pro-%d\n", cnt);
-		db = calc4_pro(db);// printf("calc4_pro-%d\n", cnt);
+		// db = calc3_pro(db);// printf("calc3_pro-%d\n", cnt);
+		// db = calc4_pro(db);// printf("calc4_pro-%d\n", cnt);
 		// db = calc3_cut_pro(db); printf("calc3_cut_pro-%d\n", cnt);
 		// db = calc3_pro(db); printf("calc3_pro-%d\n", cnt);
 		// db = calc4_pro(db); printf("calc4_pro-%d\n", cnt);
@@ -1035,8 +1035,8 @@ void gao() {
 }
 
 int main(int argc, char const *argv[]) {
-	//freopen("data-test.dat", "r", stdin);
-	freopen("data-mod1.dat", "r", stdin);//不区分厂家，BC区自由匹配
+	freopen("data.dat", "r", stdin);
+	//freopen("data-mod1.dat", "r", stdin);//不区分厂家，BC区自由匹配
 	//freopen("data-mod2.dat", "r", stdin);//包头区无杂质，BC区自由匹配
 	//freopen("data-mod3.dat", "r", stdin);//不分厂家，所有杂质匹配
 	//freopen("data-540.dat", "r", stdin);
