@@ -1035,13 +1035,13 @@ void gao() {
 }
 
 int main(int argc, char const *argv[]) {
-	//freopen("data.dat", "r", stdin);
+	//freopen("data-test.dat", "r", stdin);
 	freopen("data-mod1.dat", "r", stdin);//不区分厂家，BC区自由匹配
 	//freopen("data-mod2.dat", "r", stdin);//包头区无杂质，BC区自由匹配
 	//freopen("data-mod3.dat", "r", stdin);//不分厂家，所有杂质匹配
 	//freopen("data-540.dat", "r", stdin);
 	//freopen("data-300.dat", "r", stdin);
-	//freopen("result.out", "w", stdout);
+	freopen("result.out", "w", stdout);
 	gao();
 	printf("\nEOF\n");
 	return 0;
