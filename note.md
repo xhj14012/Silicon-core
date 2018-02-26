@@ -243,7 +243,7 @@ sum:
         目标匹配率 = 100.00%
         实际匹配率 = 44.44%
         时耗 4.0s
-        详细匹配情况 [paste.ubuntu.com](https://paste.ubuntu.com/p/nqp78W4CTn/)
+        详细匹配情况 https://paste.ubuntu.com/p/nqp78W4CTn/
         
 
 
