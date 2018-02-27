@@ -901,10 +901,10 @@ void report(vector<silicon> a, int p) {
 	printf("未匹配数 = %d\n", tot_cnt_rest[p]);
 	printf("报废数 = %d\n", tot_cnt_scrap[p]);
 	printf("总数 = %d\n", tot_cnt_used[p] + tot_cnt_rest[p] + tot_cnt_scrap[p]);
-	printf("目标匹配率 = %.2f%%\n", cut_stop_rate);
+	printf("预设匹配率 = %.2f%%\n", cut_stop_rate);
 	printf("实际匹配率 = %.2f%%\n", 1.0 * tot_cnt_used[p] / (tot_cnt_used[p] + tot_cnt_rest[p] + tot_cnt_scrap[p]) * 100);
-	if (max_cut_num > -1) {
-		printf("最大截断刀数 %d\n", max_cut_num);
+	if (max_cut_num > 0) {
+		printf("预设截断刀数 %d\n", max_cut_num);
 		printf("实际截断刀数 %d\n", max_cut_num - rest_cut_num);
 	}
 
