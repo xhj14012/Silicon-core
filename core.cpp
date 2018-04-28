@@ -61,6 +61,7 @@ int cnt_used;//当前匹配
 int cnt_scrap;//当前报废
 int cnt_cut_num;//当前截断数
 double cut_stop_rate;//目标匹配率
+int total;//原始总数
 struct silicon {
 	void input() {
 		id = tot++;
@@ -844,10 +845,21 @@ vector<silicon> calc3(vector<silicon> v) {
 vector<vector<silicon> > tot_db;
 vector<int> tot_cnt_rest, tot_cnt_used, tot_cnt_scrap;
 void report(vector<silicon> a, int p) {
-	// sort(a.begin(), a.end(), cmp_id);
-	// for (int i = 0; i < a.size(); ++i) {
-	// 	a[i].output();
-	// }
+	int realused = 0;
+	sort(a.begin(), a.end(), cmp_id);
+	for (int i = 0; i < a.size(); ++i) {
+		
+		if (i != 0 && a[i].id == a[i - 1].id) continue;
+		if(a[i].length<scrap_len) continue;
+		//a[i].output();
+		if (a[i].cut == 1 || a[i].group != 0) { //
+		//if (a[i].cut == 1 || a[i].group > 0) { //不含报废
+			realused++;
+			//printf("%d\n", realused);
+			
+		}
+
+	}
 	// cnt_rest = 0;
 	// cnt_used = 0;
 	// cnt_scrap = 0;
@@ -898,11 +910,15 @@ void report(vector<silicon> a, int p) {
 	printf("|—--------------—--------------—--------------—--------------\n");
 	printf("成功匹配组数 = %d\n", cnt);
 	printf("匹配数 = %d\n", tot_cnt_used[p]);
-	printf("未匹配数 = %d\n", tot_cnt_rest[p]);
+	printf("未匹配数%s = %d\n",(max_cut_num>0)?"(按切割后计算)":"", tot_cnt_rest[p]);
+	printf("实际使用数 = %d\n", realused);
 	printf("报废数 = %d\n", tot_cnt_scrap[p]);
-	printf("总数 = %d\n", tot_cnt_used[p] + tot_cnt_rest[p] + tot_cnt_scrap[p]);
+	printf("逻辑总数 = 匹配数+未匹配数+报废数 = %d\n", tot_cnt_used[p] + tot_cnt_rest[p] + tot_cnt_scrap[p]);
+	printf("原始总数 = %d\n", total);
 	printf("预设匹配率 = %.2f%%\n", cut_stop_rate);
-	printf("实际匹配率 = %.2f%%\n", 1.0 * tot_cnt_used[p] / (tot_cnt_used[p] + tot_cnt_rest[p] + tot_cnt_scrap[p]) * 100);
+	printf("实际匹配率1 = 匹配数/逻辑总数 = %.2f%%\n", 1.0 * tot_cnt_used[p] / (tot_cnt_used[p] + tot_cnt_rest[p] + tot_cnt_scrap[p]) * 100);
+	printf("实际匹配率2 = 匹配数/原始总数 = %.2f%%\n", min(1.0 * tot_cnt_used[p] / total * 100,100.0));
+	printf("实际使用率1 = 实际使用数/原始总数 = %.2f%%\n", 1.0 * realused / total * 100);
 	if (max_cut_num > 0) {
 		printf("预设截断刀数 %d\n", max_cut_num);
 		printf("实际截断刀数 %d\n", max_cut_num - rest_cut_num);
@@ -926,7 +942,7 @@ vector<silicon> calc(vector<silicon> db) {
 		}
 	}
 	finish.clear();
-	int flag = 5;
+	int flag = 6;
 	if (flag == 1) {
 		db = calc3(db);
 		db = calc4(db);
@@ -1002,6 +1018,7 @@ void gao() {
 	scanf("%d", &scrap_len);
 	scanf("%d", &max_cut_num);
 	scanf("%lf", &cut_stop_rate);
+	total = 0;
 	cnt = 0;
 	cnt_calc = 0;
 	tot_db.resize(1);
@@ -1016,6 +1033,7 @@ void gao() {
 	vector<silicon> result;
 	result.clear();
 	while (~scanf("%d", &n)) {
+		total += n;
 		cnt_calc++;
 		vector<silicon>db; db.clear();
 		for (int i = 0; i < n; ++i) {
@@ -1041,6 +1059,9 @@ int main(int argc, char const *argv[]) {
 	//freopen("data-mod3.dat", "r", stdin);//不分厂家，所有杂质匹配
 	//freopen("data-540.dat", "r", stdin);
 	//freopen("data-300.dat", "r", stdin);
+	//freopen("data-mod51-1.dat", "r", stdin);
+	//freopen("data-mod51-2.dat", "r", stdin);
+	//freopen("data-mod51-3.dat", "r", stdin);
 	freopen("result.out", "w", stdout);
 	gao();
 	printf("\nEOF\n");
