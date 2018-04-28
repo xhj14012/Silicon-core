@@ -845,16 +845,23 @@ vector<silicon> calc3(vector<silicon> v) {
 vector<vector<silicon> > tot_db;
 vector<int> tot_cnt_rest, tot_cnt_used, tot_cnt_scrap;
 void report(vector<silicon> a, int p) {
-	int realused = 0;
+	int realused1 = 0, realused2 = 0;
 	sort(a.begin(), a.end(), cmp_id);
 	for (int i = 0; i < a.size(); ++i) {
-		
-		if (i != 0 && a[i].id == a[i - 1].id) continue;
 		if(a[i].length<scrap_len) continue;
 		//a[i].output();
 		if (a[i].cut == 1 || a[i].group != 0) { //
 		//if (a[i].cut == 1 || a[i].group > 0) { //不含报废
-			realused++;
+			realused2++;
+			//printf("%d\n", realused);
+			
+		}
+		if (i != 0 && a[i].id == a[i - 1].id) continue;
+		
+		//a[i].output();
+		if (a[i].cut == 1 || a[i].group != 0) { //
+		//if (a[i].cut == 1 || a[i].group > 0) { //不含报废
+			realused1++;
 			//printf("%d\n", realused);
 			
 		}
@@ -911,14 +918,18 @@ void report(vector<silicon> a, int p) {
 	printf("成功匹配组数 = %d\n", cnt);
 	printf("匹配数 = %d\n", tot_cnt_used[p]);
 	printf("未匹配数%s = %d\n",(max_cut_num>0)?"(按切割后计算)":"", tot_cnt_rest[p]);
-	printf("实际使用数 = %d\n", realused);
+	printf("实际使用数 = %d\n", realused1);
 	printf("报废数 = %d\n", tot_cnt_scrap[p]);
 	printf("逻辑总数 = 匹配数+未匹配数+报废数 = %d\n", tot_cnt_used[p] + tot_cnt_rest[p] + tot_cnt_scrap[p]);
 	printf("原始总数 = %d\n", total);
 	printf("预设匹配率 = %.2f%%\n", cut_stop_rate);
 	printf("实际匹配率1 = 匹配数/逻辑总数 = %.2f%%\n", 1.0 * tot_cnt_used[p] / (tot_cnt_used[p] + tot_cnt_rest[p] + tot_cnt_scrap[p]) * 100);
 	printf("实际匹配率2 = 匹配数/原始总数 = %.2f%%\n", min(1.0 * tot_cnt_used[p] / total * 100,100.0));
-	printf("实际使用率1 = 实际使用数/原始总数 = %.2f%%\n", 1.0 * realused / total * 100);
+	printf("实际使用率1 = 实际使用数/原始总数 = %.2f%%\n", 1.0 * realused1 / total * 100);
+	if(max_cut_num>0) {
+		printf("实际使用率2 = 切后实际使用数/逻辑总数 = %.2f%%\n", 1.0 * realused2 / (tot_cnt_used[p] + tot_cnt_rest[p] + tot_cnt_scrap[p]) * 100);
+	}
+	
 	if (max_cut_num > 0) {
 		printf("预设截断刀数 %d\n", max_cut_num);
 		printf("实际截断刀数 %d\n", max_cut_num - rest_cut_num);
@@ -1053,7 +1064,7 @@ void gao() {
 }
 
 int main(int argc, char const *argv[]) {
-	freopen("data.dat", "r", stdin);
+	//freopen("data.dat", "r", stdin);
 	//freopen("data-mod1.dat", "r", stdin);//不区分厂家，BC区自由匹配
 	//freopen("data-mod2.dat", "r", stdin);//包头区无杂质，BC区自由匹配
 	//freopen("data-mod3.dat", "r", stdin);//不分厂家，所有杂质匹配
@@ -1061,7 +1072,7 @@ int main(int argc, char const *argv[]) {
 	//freopen("data-300.dat", "r", stdin);
 	//freopen("data-mod51-1.dat", "r", stdin);
 	//freopen("data-mod51-2.dat", "r", stdin);
-	//freopen("data-mod51-3.dat", "r", stdin);
+	freopen("data-mod51-3.dat", "r", stdin);
 	freopen("result.out", "w", stdout);
 	gao();
 	printf("\nEOF\n");
