@@ -47,6 +47,8 @@ int sgn(double x) {
 	if (x < 0) return -1;
 	else return 1;
 }
+bool flag_detail=1;
+bool flag_report=1;
 int cnt = 0;
 int tot;
 int cnt_calc;//计算批数
@@ -76,13 +78,15 @@ struct silicon {
 		cut = 0;
 	}
 	void output() {
-		printf("|%4s\t\t", factory);
-		printf("|%4s\t\t", number);
-		printf("|%2s\t\t", type);
-		printf("|%4s\t\t", quality_s);
-		printf("|%4d\t\t", length);
-		printf("|%4d\t\t", group);
-		printf("|%s\n", (cut ? "切" : ""));
+		if (flag_detail) {
+			printf("|%4s\t\t", factory);
+			printf("|%4s\t\t", number);
+			printf("|%2s\t\t", type);
+			printf("|%4s\t\t", quality_s);
+			printf("|%4d\t\t", length);
+			printf("|%4d\t\t", group);
+			printf("|%s\n", (cut ? "切" : ""));
+		}
 	}
 	int id;//硅棒序号
 	char factory[11];
@@ -1065,7 +1069,7 @@ void gao() {
 
 int main(int argc, char const *argv[]) {
 	if (argc != 2) {
-		printf("example :core example.dat\n");
+		printf("example :core [input]\n");
 		return 1;
 	}
 	freopen(argv[1], "r", stdin);
