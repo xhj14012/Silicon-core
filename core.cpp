@@ -47,8 +47,10 @@ int sgn(double x) {
 	if (x < 0) return -1;
 	else return 1;
 }
-bool flag_detail=1;
-bool flag_report=1;
+ifstream fin;
+ofstream fout;
+bool flag_detail = 1;
+bool flag_report = 1;
 int cnt = 0;
 int tot;
 int cnt_calc;//计算批数
@@ -64,6 +66,7 @@ int cnt_scrap;//当前报废
 int cnt_cut_num;//当前截断数
 double cut_stop_rate;//目标匹配率
 int total;//原始总数
+
 struct silicon {
 	void input() {
 		id = tot++;
@@ -102,7 +105,16 @@ struct silicon {
 	// 	return length < a.length;
 	// }
 };
+void semirand(vector<silicon>&a) {
+	int n = a.size();
+	int index, tmp, i;
+	//srand(time(NULL));
+	for (i = n - 1; i > 0; i--) {
+		index = rand() % i;
+		swap(a[i], a[index]);
+	}
 
+}
 bool cmp_length(const silicon a, const silicon b) {
 	return a.length < b.length;
 }
@@ -264,7 +276,7 @@ vector<silicon> calc4_cut_pro(vector<silicon> v) {
 	if (rest_cut_num <= 0) return v;
 	if (v.size() < 4) return v;
 	sort(v.begin(), v.end(), cmp_length);
-
+	semirand(v);
 	vector<PIIII> comb;
 	comb.clear();
 	int size = v.size();
@@ -345,7 +357,7 @@ vector<silicon> calc3_cut_pro(vector<silicon> v) {
 	if (rest_cut_num <= 0) return v;
 	if (v.size() < 4) return v;
 	sort(v.begin(), v.end(), cmp_length);
-
+	semirand(v);
 	vector<PIIII> comb;
 	comb.clear();
 	int size = v.size();
@@ -605,6 +617,7 @@ vector<silicon> calc3_cut(vector<silicon> v) {
 vector<silicon> calc4_pro(vector<silicon> v) {
 	if (v.size() < 4) return v;
 	sort(v.begin(), v.end(), cmp_length);
+	semirand(v);
 	vector<PIIII> comb;
 	comb.clear();
 	int size = v.size();
@@ -667,10 +680,11 @@ vector<silicon> calc4_pro(vector<silicon> v) {
 
 	return v;
 }
+
 vector<silicon> calc3_pro(vector<silicon> v) {
 	if (v.size() < 3) return v;
 	sort(v.begin(), v.end(), cmp_length);
-
+	semirand(v);
 	vector<PIIII> comb;
 	comb.clear();
 	int size = v.size();
@@ -928,8 +942,10 @@ void report(vector<silicon> a, int p) {
 	printf("原始总数 = %d\n", total);
 	printf("预设匹配率 = %.2f%%\n", cut_stop_rate);
 	printf("实际匹配率1 = 匹配数/逻辑总数 = %.2f%%\n", 1.0 * tot_cnt_used[p] / (tot_cnt_used[p] + tot_cnt_rest[p] + tot_cnt_scrap[p]) * 100);
-	printf("实际匹配率2 = 匹配数/原始总数 = %.2f%%\n", min(1.0 * tot_cnt_used[p] / total * 100, 100.0));
-	printf("实际使用率1 = 实际使用数/原始总数 = %.2f%%\n", 1.0 * realused1 / total * 100);
+	// printf("实际匹配率2 = 匹配数/原始总数 = %.2f%%\n", min(1.0 * tot_cnt_used[p] / total * 100, 100.0));
+	if (max_cut_num == 0) {
+		printf("实际使用率1 = 实际使用数/原始总数 = %.2f%%\n", 1.0 * realused1 / total * 100);
+	}
 	if (max_cut_num > 0) {
 		printf("实际使用率2 = 切后实际使用数/逻辑总数 = %.2f%%\n", 1.0 * realused2 / (tot_cnt_used[p] + tot_cnt_rest[p] + tot_cnt_scrap[p]) * 100);
 	}
@@ -940,7 +956,57 @@ void report(vector<silicon> a, int p) {
 	}
 
 }
+void corelog(vector<silicon> a, int p) {
+	int realused1 = 0, realused2 = 0;
+	sort(a.begin(), a.end(), cmp_id);
+	for (int i = 0; i < a.size(); ++i) {
+		if (a[i].length < scrap_len) continue;
+		//a[i].output();
+		if (a[i].cut == 1 || a[i].group != 0) { //
+			//if (a[i].cut == 1 || a[i].group > 0) { //不含报废
+			realused2++;
+			//printf("%d\n", realused);
 
+		}
+		if (i != 0 && a[i].id == a[i - 1].id) continue;
+
+		//a[i].output();
+		if (a[i].cut == 1 || a[i].group != 0) { //
+			//if (a[i].cut == 1 || a[i].group > 0) { //不含报废
+			realused1++;
+			//printf("%d\n", realused);
+
+		}
+
+	}
+	// cnt_rest = 0;
+	// cnt_used = 0;
+	// cnt_scrap = 0;
+
+	printf("|—--------------—--------------—--------------—--------------\n");
+	printf("成功匹配组数 = %d\n", cnt);
+	printf("匹配数 = %d\n", tot_cnt_used[p]);
+	printf("未匹配数%s = %d\n", (max_cut_num > 0) ? "(按切割后计算)" : "", tot_cnt_rest[p]);
+	printf("实际使用数 = %d\n", realused1);
+	printf("报废数 = %d\n", tot_cnt_scrap[p]);
+	printf("逻辑总数 = 匹配数+未匹配数+报废数 = %d\n", tot_cnt_used[p] + tot_cnt_rest[p] + tot_cnt_scrap[p]);
+	printf("原始总数 = %d\n", total);
+	printf("预设匹配率 = %.2f%%\n", cut_stop_rate);
+	printf("实际匹配率1 = 匹配数/逻辑总数 = %.2f%%\n", 1.0 * tot_cnt_used[p] / (tot_cnt_used[p] + tot_cnt_rest[p] + tot_cnt_scrap[p]) * 100);
+	//printf("实际匹配率2 = 匹配数/原始总数 = %.2f%%\n", min(1.0 * tot_cnt_used[p] / total * 100, 100.0));
+	if (max_cut_num == 0) {
+		printf("实际使用率1 = 实际使用数/原始总数 = %.2f%%\n", 1.0 * realused1 / total * 100);
+	}
+	if (max_cut_num > 0) {
+		printf("实际使用率2 = 切后实际使用数/逻辑总数 = %.2f%%\n", 1.0 * realused2 / (tot_cnt_used[p] + tot_cnt_rest[p] + tot_cnt_scrap[p]) * 100);
+	}
+
+	if (max_cut_num > 0) {
+		printf("预设截断刀数 %d\n", max_cut_num);
+		printf("实际截断刀数 %d\n", max_cut_num - rest_cut_num);
+	}
+
+}
 
 vector<silicon> calc(vector<silicon> db) {
 	cnt_rest = 0;
@@ -1016,18 +1082,17 @@ vector<silicon> calc(vector<silicon> db) {
 		db = calc3_cut_pro(db);// printf("calc3_cut_pro-%d\n", cnt);
 		// db = calc3_pro(db);// printf("calc3_pro-%d\n", cnt);
 		// db = calc4_pro(db);// printf("calc4_pro-%d\n", cnt);
-		// db = calc3_cut_pro(db); printf("calc3_cut_pro-%d\n", cnt);
-		// db = calc3_pro(db); printf("calc3_pro-%d\n", cnt);
-		// db = calc4_pro(db); printf("calc4_pro-%d\n", cnt);
-		// db = calc4_cut_pro(db); printf("calc4_cut_pro-%d\n", cnt);
-		// db = calc3_pro(db); printf("calc3_pro-%d\n", cnt);
-		// db = calc4_pro(db); printf("calc4_pro-%d\n", cnt);
+		// db = calc3_cut_pro(db);// printf("calc3_cut_pro-%d\n", cnt);
+		// db = calc3_pro(db);// printf("calc3_pro-%d\n", cnt);
+		// db = calc4_pro(db);// printf("calc4_pro-%d\n", cnt);
+		// db = calc4_cut_pro(db);// printf("calc4_cut_pro-%d\n", cnt);
+		// db = calc3_pro(db);// printf("calc3_pro-%d\n", cnt);
+		// db = calc4_pro(db);// printf("calc4_pro-%d\n", cnt);
 	}
 	return mg(db, finish);
 }
 
 void gao() {
-	int n;
 	scanf("%d", &min_eligible_len);
 	scanf("%d", &max_eligible_len);
 	scanf("%d", &scrap_len);
@@ -1047,6 +1112,7 @@ void gao() {
 	rest_cut_num = max_cut_num;
 	vector<silicon> result;
 	result.clear();
+	int n;
 	while (~scanf("%d", &n)) {
 		total += n;
 		cnt_calc++;
@@ -1066,23 +1132,76 @@ void gao() {
 	}
 	report(tot_db[0], 0);
 }
+std::tuple<std::string, std::string> ext(const std::string& path) {
+	std::regex re(R"((.+?)(\.[^.]+)?)");
+	std::smatch results;
+
+	std::regex_match(path, results, re);
+
+	return std::make_tuple(results[1], results[2]);
+	//get<>()
+}
 
 int main(int argc, char const *argv[]) {
-	if (argc != 2) {
-		printf("example :core [input]\n");
-		return 1;
+	time_t start,stop;
+	start =time(NULL);
+	srand(time(NULL));
+	// freopen("core.log", "w", stdout);
+	// cout << "core.log" << endl;
+	if (argc < 2) {
+		argv[1] = "data.dat";
 	}
-	freopen(argv[1], "r", stdin);
-	//freopen("data-mod1.dat", "r", stdin);//不区分厂家，BC区自由匹配
-	//freopen("data-mod2.dat", "r", stdin);//包头区无杂质，BC区自由匹配
-	//freopen("data-mod3.dat", "r", stdin);//不分厂家，所有杂质匹配
-	//freopen("data-540.dat", "r", stdin);
-	//freopen("data-300.dat", "r", stdin);
-	//freopen("data-mod51-1.dat", "r", stdin);
-	//freopen("data-mod51-2.dat", "r", stdin);
-	//freopen("data-mod51-3.dat", "r", stdin);
+	if (argc < 3) {
+		argv[2] = "10000";
+	}
+
+	string file_name = get<0>(ext(argv[1]));
+	int cas;
+	sscanf(argv[2], "%d", &cas);
+	int final_cnt = 0;
+	double final_rate = 0.0;
+	int continues = 0;
+	freopen((file_name+".log").c_str(), "w", stdout);
+	for (int i = 1; i <= cas; ++i) {
+		freopen(argv[1], "r", stdin);
+		freopen((file_name + ".tmp").c_str(), "w", stdout);
+		gao();
+		printf("\nEOF\n");
+
+		// fclose(stdin);
+		// fclose(stdout);
+		continues++;
+		freopen((file_name+".log").c_str(), "a", stdout);
+		cout << "run id:";
+		printf("%06d ", i);
+		stop=time(NULL);
+		printf("cost time %ld s\n", stop-start);
+		if (final_rate < ( 1.0 * tot_cnt_used[0] / (tot_cnt_used[0] + tot_cnt_rest[0] + tot_cnt_scrap[0]) * 100 )) {
+			// if (final_cnt <= cnt) {
+			final_rate = ( 1.0 * tot_cnt_used[0] / (tot_cnt_used[0] + tot_cnt_rest[0] + tot_cnt_scrap[0]) * 100 );
+			final_cnt = cnt;
+			string newname = file_name + ".out";
+			
+
+			corelog(tot_db[0], 0);
+			int res = rename((file_name + ".tmp").c_str(), newname.c_str());
+			continues = 0;
+		}
+
+		
+		if(stop-start>=10) {
+			return 0;
+		}
+		if (continues == 500) {
+			return 0;
+		}
+
+	}
 	//freopen("result.out", "w", stdout);
-	gao();
-	printf("\nEOF\n");
+	// freopen("core.log", "w+", stdout);
+	// report(tot_db[0], 0);
+	// cout << final_cnt;
+
 	return 0;
 }
+
