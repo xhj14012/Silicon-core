@@ -1024,6 +1024,7 @@ vector<silicon> calc(vector<silicon> db) {
 	}
 	finish.clear();
 	int flag = 6;
+	int lg = 1;
 	if (flag == 1) {
 		db = calc3(db);
 		db = calc4(db);
@@ -1072,22 +1073,20 @@ vector<silicon> calc(vector<silicon> db) {
 	} else if (flag == 6) {
 		db = calc3_pro(db);// printf("calc3_pro-%d\n", cnt);
 		db = calc4_pro(db);// printf("calc4_pro-%d\n", cnt);
-		if (db.size() <= 100)
-			db = calc4_cut_pro(db);// printf("calc4_pro-%d\n", cnt);
-		db = calc3_cut_pro(db);// printf("calc3_cut_pro-%d\n", cnt);
-		// db = calc3_pro(db);// printf("calc3_pro-%d\n", cnt);
-		// db = calc4_pro(db);// printf("calc4_pro-%d\n", cnt);
+		// if (db.size() <= 100) {
+		// 	db = calc4_cut_pro(db); if(lg) printf("(4)-%d\n", cnt);
+		// 	db = calc4_cut_pro(db); if(lg) printf("(3)-%d\n", cnt);
+		// 	db = calc4_cut_pro(db); if(lg) printf("(3)-%d\n", cnt);
+		// 	db = calc4_cut_pro(db); if(lg) printf("(3)-%d\n", cnt);
+		// 	db = calc4_cut_pro(db); if(lg) printf("(3)-%d\n", cnt);
+		// }
+		
+		db = calc3_cut_pro(db); if(lg) printf("(3)-%d\n", cnt);
 
-		db = calc4_cut_pro(db);// printf("calc4_pro-%d\n", cnt);
-		db = calc3_cut_pro(db);// printf("calc3_cut_pro-%d\n", cnt);
-		// db = calc3_pro(db);// printf("calc3_pro-%d\n", cnt);
-		// db = calc4_pro(db);// printf("calc4_pro-%d\n", cnt);
-		// db = calc3_cut_pro(db);// printf("calc3_cut_pro-%d\n", cnt);
-		// db = calc3_pro(db);// printf("calc3_pro-%d\n", cnt);
-		// db = calc4_pro(db);// printf("calc4_pro-%d\n", cnt);
-		// db = calc4_cut_pro(db);// printf("calc4_cut_pro-%d\n", cnt);
-		// db = calc3_pro(db);// printf("calc3_pro-%d\n", cnt);
-		// db = calc4_pro(db);// printf("calc4_pro-%d\n", cnt);
+		db = calc4_cut_pro(db); if(lg) printf("(4)-%d\n", cnt);
+		db = calc3_cut_pro(db); if(lg) printf("(3)-%d\n", cnt);
+		db = calc4_cut_pro(db); if(lg) printf("(4)-%d\n", cnt);
+		db = calc3_cut_pro(db); if(lg) printf("(3)-%d\n", cnt);
 	}
 	return mg(db, finish);
 }
@@ -1143,8 +1142,8 @@ std::tuple<std::string, std::string> ext(const std::string& path) {
 }
 
 int main(int argc, char const *argv[]) {
-	time_t start,stop;
-	start =time(NULL);
+	time_t start, stop;
+	start = time(NULL);
 	srand(time(NULL));
 	// freopen("core.log", "w", stdout);
 	// cout << "core.log" << endl;
@@ -1154,49 +1153,64 @@ int main(int argc, char const *argv[]) {
 	if (argc < 3) {
 		argv[2] = "10000";
 	}
+	if (argc < 4) {
+		argv[3] = "10";
+	}
 
 	string file_name = get<0>(ext(argv[1]));
+	string datname = file_name + ".dat";
+	string outname = file_name + ".out";
+	string tmpname = file_name + ".tmp";
+	string logname = file_name + ".log";
+	string runname = file_name + ".run";
 	int cas;
 	sscanf(argv[2], "%d", &cas);
+	int maxtime;
+	sscanf(argv[3], "%d", &maxtime);
 	int final_cnt = 0;
 	double final_rate = 0.0;
 	int continues = 0;
-	freopen((file_name+".log").c_str(), "w", stdout);
+	freopen((file_name + ".log").c_str(), "w", stdout);
 	for (int i = 1; i <= cas; ++i) {
-		freopen(argv[1], "r", stdin);
-		freopen((file_name + ".tmp").c_str(), "w", stdout);
+		freopen(datname.c_str(), "r", stdin);
+		freopen(tmpname.c_str(), "w", stdout);
+
 		gao();
 		printf("\nEOF\n");
 
 		// fclose(stdin);
 		// fclose(stdout);
 		continues++;
-		freopen((file_name+".log").c_str(), "a", stdout);
-		cout << "run id:";
+		freopen(logname.c_str(), "a", stdout);
+		printf("run id:");
 		printf("%06d ", i);
-		stop=time(NULL);
-		printf("cost time %ld s\n", stop-start);
+		stop = time(NULL);
+		printf("cost time %ld s\n", stop - start);
 		if (final_rate < ( 1.0 * tot_cnt_used[0] / (tot_cnt_used[0] + tot_cnt_rest[0] + tot_cnt_scrap[0]) * 100 )) {
 			// if (final_cnt <= cnt) {
 			final_rate = ( 1.0 * tot_cnt_used[0] / (tot_cnt_used[0] + tot_cnt_rest[0] + tot_cnt_scrap[0]) * 100 );
 			final_cnt = cnt;
-			string newname = file_name + ".out";
-			
 
+			remove(outname.c_str());
 			corelog(tot_db[0], 0);
-			int res = rename((file_name + ".tmp").c_str(), newname.c_str());
+			rename(tmpname.c_str(), outname.c_str());
 			continues = 0;
 		}
 
-		
-		if(stop-start>=10) {
-			return 0;
-		}
-		if (continues == 500) {
-			return 0;
+		remove(tmpname.c_str());
+		freopen(runname.c_str(), "w", stdout);
+		printf("final_rate=%.4f%% ", final_rate);
+		printf("run id:");
+		printf("%06d ", i);
+		printf("cost time %ld s\n", stop - start);
+
+		if (stop - start >= maxtime || continues == 500) {
+			break;
 		}
 
 	}
+	remove(tmpname.c_str());
+	remove(runname.c_str());
 	//freopen("result.out", "w", stdout);
 	// freopen("core.log", "w+", stdout);
 	// report(tot_db[0], 0);
