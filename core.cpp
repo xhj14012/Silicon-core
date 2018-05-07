@@ -1199,7 +1199,7 @@ int main(int argc, char const *argv[]) {
 
 		remove(tmpname.c_str());
 		freopen(runname.c_str(), "w", stdout);
-		printf("final_rate=%.4f%% ", final_rate);
+		printf("final_rate=%.2f%% ", final_rate);
 		printf("run id:");
 		printf("%06d ", i);
 		printf("cost time %ld s\n", stop - start);
@@ -1209,6 +1209,7 @@ int main(int argc, char const *argv[]) {
 		}
 
 	}
+	
 	remove(tmpname.c_str());
 	remove(runname.c_str());
 	//freopen("result.out", "w", stdout);
