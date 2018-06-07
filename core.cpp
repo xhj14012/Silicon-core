@@ -105,16 +105,18 @@ struct silicon {
 	// 	return length < a.length;
 	// }
 };
-void semirand(vector<silicon>&a) {
-	int n = a.size();
-	int index, tmp, i;
-	//srand(time(NULL));
-	for (i = n - 1; i > 0; i--) {
-		index = rand() % i;
-		swap(a[i], a[index]);
-	}
+// void semirand(vector<silicon>&v) {
+// 	// int n = a.size();
+// 	// int index, i;
+// 	// //srand(time(NULL));
+// 	// for (i = n - 1; i > 0; i--) {
+// 	// 	index = rand() % i;
+// 	// 	swap(a[i], a[index]);
+// 	// }
+// 	unsigned seed = std::chrono::system_clock::now ().time_since_epoch ().count ();  
+//     std::shuffle (v.begin (), v.end (), std::default_random_engine (seed));
 
-}
+// }
 bool cmp_length(const silicon a, const silicon b) {
 	return a.length < b.length;
 }
@@ -164,119 +166,120 @@ void report_cut() {
 	//printf("最大截断刀数 %d\t", max_cut_num);
 	printf("|%4d\n", cnt_cut_num);
 }
-vector<silicon> calc_cut_pro(vector<silicon> v) {
-	if (rest_cut_num <= 0) return v;
-	if (v.size() < 4) return v;
-	sort(v.begin(), v.end(), cmp_length);
+// vector<silicon> calc_cut_pro(vector<silicon> v) {
+// 	if (rest_cut_num <= 0) return v;
+// 	if (v.size() < 4) return v;
+// 	sort(v.begin(), v.end(), cmp_length);
 
-	vector<PIIII> comb;
-	comb.clear();
-	int size = v.size();
-	for (int i = 2; i < size; ++i) { //记忆化
-		if (v[i].group != 0) continue;
-		for (int j = 1; j < i; ++j) {
-			if (v[j].group != 0) continue;
-			for (int k = 0; k < j; ++k) {
-				if (v[k].group != 0) continue;
-				comb.pb(mp(v[i].length + v[j].length + v[k].length, i, j, k));
-			}
-		}
-	}
-	sort(comb.begin(), comb.end());
-	// printf("%d %d %d %d\n", comb[0].first,comb[0].se,comb[0].third,comb[0].forth);//539 2 1 0
-	// printf("%d %d %d %d\n", comb[1].first,comb[1].se,comb[1].third,comb[1].forth);//540 3 1 0
-	size = v.size();
-	for (int p = 0; p < size - 3; ++p) {
-		if (!(rest_cut_num > 0 && calc_cur_rate() < cut_stop_rate)) break;
-		if (v[p].group != 0) {
-			continue;
-		} else {
-			vector<PIIII>::iterator mit, it_low;
-			it_low = lower_bound(comb.begin(), comb.end(), mp(max_eligible_len - v[p].length + 50, 0, 0, 0));
-			//it_upper = upper_bound(comb.begin(), comb.end(), mp(max_eligible_len - v[p].length + 1, 0, 0));
-			mit = comb.end();
-			if (it_low != comb.end()) {
-				for (std::vector<PIIII>::iterator it = it_low; it != comb.end(); ++it) {
-					if (v[it->se].group == 0 && v[it->third].group == 0 && v[it->forth].group == 0 && p != it->forth) {
-						if (check(it->fi + v[p].length) > 0
-						        && check(v[p].length + v[it->third].length + v[it->forth].length) < 0
-						        && (v[p].length + mit->first) - min_eligible_len >= scrap_len) { //注意p+j+k已经过大的情况
-							if (mit == comb.end() || (it->forth >= mit->forth)) { //启发式
-								mit = it;
-							}
-						}
-					}
-				}
-			}
-			if (mit == comb.end()) {
-				v[p].group = -1;
-			} else {
-				cnt++;
-				cnt_used += 4;
-				cnt_rest -= 4;
-				cnt_rest++;
-				cnt_cut_num++;
-				rest_cut_num--;
-				v[mit->se].cut = 1;
-				v[mit->se].group = cnt;
-				v[mit->third].group = cnt;
-				v[mit->forth].group = cnt;
-				v[p].group = cnt;
-				int cut_rest_len = (v[p].length + mit->first) - min_eligible_len; //截断剩余
-				int cut_used_len = v[mit->se].length - cut_rest_len;
-				v[mit->se].length = cut_used_len;
-				v.pb(v[mit->se]);
-				v[v.size() - 1].length = cut_rest_len;
-				v[v.size() - 1].group = 0;
-				report_cut();
+// 	vector<PIIII> comb;
+// 	comb.clear();
+// 	int size = v.size();
+// 	for (int i = 2; i < size; ++i) { //记忆化
+// 		if (v[i].group != 0) continue;
+// 		for (int j = 1; j < i; ++j) {
+// 			if (v[j].group != 0) continue;
+// 			for (int k = 0; k < j; ++k) {
+// 				if (v[k].group != 0) continue;
+// 				comb.pb(mp(v[i].length + v[j].length + v[k].length, i, j, k));
+// 			}
+// 		}
+// 	}
+// 	sort(comb.begin(), comb.end());
+// 	// printf("%d %d %d %d\n", comb[0].first,comb[0].se,comb[0].third,comb[0].forth);//539 2 1 0
+// 	// printf("%d %d %d %d\n", comb[1].first,comb[1].se,comb[1].third,comb[1].forth);//540 3 1 0
+// 	size = v.size();
+// 	for (int p = 0; p < size - 3; ++p) {
+// 		if (!(rest_cut_num > 0 && calc_cur_rate() < cut_stop_rate)) break;
+// 		if (v[p].group != 0) {
+// 			continue;
+// 		} else {
+// 			vector<PIIII>::iterator mit, it_low;
+// 			it_low = lower_bound(comb.begin(), comb.end(), mp(max_eligible_len - v[p].length + 50, 0, 0, 0));
+// 			//it_upper = upper_bound(comb.begin(), comb.end(), mp(max_eligible_len - v[p].length + 1, 0, 0));
+// 			mit = comb.end();
+// 			if (it_low != comb.end()) {
+// 				for (std::vector<PIIII>::iterator it = it_low; it != comb.end(); ++it) {
+// 					if (v[it->se].group == 0 && v[it->third].group == 0 && v[it->forth].group == 0 && p != it->forth) {
+// 						if (check(it->fi + v[p].length) > 0
+// 						        && check(v[p].length + v[it->third].length + v[it->forth].length) < 0
+// 						        && (v[p].length + mit->first) - min_eligible_len >= scrap_len) { //注意p+j+k已经过大的情况
+// 							if (mit == comb.end() || (it->forth >= mit->forth)) { //启发式
+// 								mit = it;
+// 							}
+// 						}
+// 					}
+// 				}
+// 			}
+// 			if (mit == comb.end()) {
+// 				v[p].group = -1;
+// 			} else {
+// 				cnt++;
+// 				cnt_used += 4;
+// 				cnt_rest -= 4;
+// 				cnt_rest++;
+// 				cnt_cut_num++;
+// 				rest_cut_num--;
+// 				v[mit->se].cut = 1;
+// 				v[mit->se].group = cnt;
+// 				v[mit->third].group = cnt;
+// 				v[mit->forth].group = cnt;
+// 				v[p].group = cnt;
+// 				int cut_rest_len = (v[p].length + mit->first) - min_eligible_len; //截断剩余
+// 				int cut_used_len = v[mit->se].length - cut_rest_len;
+// 				v[mit->se].length = cut_used_len;
+// 				v.pb(v[mit->se]);
+// 				v[v.size() - 1].length = cut_rest_len;
+// 				v[v.size() - 1].group = 0;
+// 				report_cut();
 
 
-				// for (std::vector<silicon>::iterator it = v.begin(); it != v.end();) {
-				// 	if (it->group > 0) {
-				// 		finish.pb(*it);
-				// 		it = v.erase(it);
-				// 	} else {
-				// 		if (it->group == -1) {
-				// 			it->group = 0;
-				// 		}
-				// 		++it;
-				// 	}
-				// }
-				sort(v.begin(), v.end(), cmp_length);
-				comb.clear();
-				size = v.size();
-				for (int i = 2; i < size; ++i) { //记忆化
-					if (v[i].group != 0) continue;
-					for (int j = 1; j < i; ++j) {
-						if (v[j].group != 0) continue;
-						for (int k = 0; k < j; ++k) {
-							if (v[k].group != 0) continue;
-							comb.pb(mp(v[i].length + v[j].length + v[k].length, i, j, k));
-						}
-					}
-				}
-			}
-			p = -1;
-		}
-	}
-	for (std::vector<silicon>::iterator it = v.begin(); it != v.end();) {
-		if (it->group > 0) {
-			finish.pb(*it);
-			it = v.erase(it);
-		} else {
-			if (it->group == -1) {
-				it->group = 0;
-			}
-			++it;
-		}
-	}
-	return v;
-}
+// 				// for (std::vector<silicon>::iterator it = v.begin(); it != v.end();) {
+// 				// 	if (it->group > 0) {
+// 				// 		finish.pb(*it);
+// 				// 		it = v.erase(it);
+// 				// 	} else {
+// 				// 		if (it->group == -1) {
+// 				// 			it->group = 0;
+// 				// 		}
+// 				// 		++it;
+// 				// 	}
+// 				// }
+// 				sort(v.begin(), v.end(), cmp_length);
+// 				comb.clear();
+// 				size = v.size();
+// 				for (int i = 2; i < size; ++i) { //记忆化
+// 					if (v[i].group != 0) continue;
+// 					for (int j = 1; j < i; ++j) {
+// 						if (v[j].group != 0) continue;
+// 						for (int k = 0; k < j; ++k) {
+// 							if (v[k].group != 0) continue;
+// 							comb.pb(mp(v[i].length + v[j].length + v[k].length, i, j, k));
+// 						}
+// 					}
+// 				}
+// 			}
+// 			p = -1;
+// 		}
+// 	}
+// 	for (std::vector<silicon>::iterator it = v.begin(); it != v.end();) {
+// 		if (it->group > 0) {
+// 			finish.pb(*it);
+// 			it = v.erase(it);
+// 		} else {
+// 			if (it->group == -1) {
+// 				it->group = 0;
+// 			}
+// 			++it;
+// 		}
+// 	}
+// 	return v;
+// }
 vector<silicon> calc4_cut_pro(vector<silicon> v) {
 	if (rest_cut_num <= 0) return v;
 	if (v.size() < 4) return v;
-	sort(v.begin(), v.end(), cmp_length);
-	semirand(v);
+	//sort(v.begin(), v.end(), cmp_length);
+	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();  
+    std::shuffle(v.begin(), v.end(), std::default_random_engine(seed));
 	vector<PIIII> comb;
 	comb.clear();
 	int size = v.size();
@@ -356,8 +359,9 @@ vector<silicon> calc4_cut_pro(vector<silicon> v) {
 vector<silicon> calc3_cut_pro(vector<silicon> v) {
 	if (rest_cut_num <= 0) return v;
 	if (v.size() < 4) return v;
-	sort(v.begin(), v.end(), cmp_length);
-	semirand(v);
+	//sort(v.begin(), v.end(), cmp_length);
+	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();  
+    std::shuffle(v.begin(), v.end(), std::default_random_engine(seed));
 	vector<PIIII> comb;
 	comb.clear();
 	int size = v.size();
@@ -429,195 +433,196 @@ vector<silicon> calc3_cut_pro(vector<silicon> v) {
 	}
 	return v;
 }
-vector<silicon> calc4_cut(vector<silicon> v) {
-	if (rest_cut_num <= 0) return v;
-	vector<silicon> result;
-	result.clear();
-	silicon v0, v1, v2;
-	while (rest_cut_num > 0 && calc_cur_rate() < cut_stop_rate) {
-		if (rest_cut_num <= 0) break;
-		if (v.size() < 4) {
-			break;
-		}
-		sort(v.begin(), v.end(), cmp_length_greater);
-		v0 = v[0];
-		v1 = v[1];
-		v2 = v[2];///
-		v.erase(v.begin());
-		v.erase(v.begin());
-		v.erase(v.begin());///
-		int add = v0.length + v1.length + v2.length;///
-		//if (add > max_len) cout << "debug";
-		int need = min_eligible_len - add;
+// vector<silicon> calc4_cut(vector<silicon> v) {
+// 	if (rest_cut_num <= 0) return v;
+// 	vector<silicon> result;
+// 	result.clear();
+// 	silicon v0, v1, v2;
+// 	while (rest_cut_num > 0 && calc_cur_rate() < cut_stop_rate) {
+// 		if (rest_cut_num <= 0) break;
+// 		if (v.size() < 4) {
+// 			break;
+// 		}
+// 		sort(v.begin(), v.end(), cmp_length_greater);
+// 		v0 = v[0];
+// 		v1 = v[1];
+// 		v2 = v[2];///
+// 		v.erase(v.begin());
+// 		v.erase(v.begin());
+// 		v.erase(v.begin());///
+// 		int add = v0.length + v1.length + v2.length;///
+// 		//if (add > max_len) cout << "debug";
+// 		int need = min_eligible_len - add;
 
-		for (std::vector<silicon>::iterator it = v.end(); it != v.begin();) {
-			--it;
-			if (check(it->length + add) == 0) {
-				cnt++;
-				printf("debug calc4_cut%d\n", cnt);
-				cnt_used += 4;
-				cnt_rest -= 4;
-				v0.group = cnt;
-				v1.group = cnt;
-				v2.group = cnt;///
-				it->group = cnt;
-				result.pb(*it);
-				v.erase(it);
-				break;
-			} else if (check(it->length + add) > 0) {
-				cnt++;
-				cnt_used += 4;
-				cnt_rest -= 3;
-				rest_cut_num--;
-				cnt_cut_num++;
-				report_cut();
-				v0.group = cnt;
-				v1.group = cnt;
-				v2.group = cnt;///
-				it->cut = 1;
-				int rest = it->length - need;
-				it->length = need;
-				it->group = cnt;
-				result.pb(*it);
-				it->length = rest;
-				if (rest < scrap_len) {//报废
-					cnt_scrap++;
-					cnt_rest--;
-					it->group = inf;
-					v.erase(it);
-				} else {
-					it->group = 0;
-				}
-				break;
-			}
-		}
-		result.pb(v0);
-		result.pb(v1);
-		result.pb(v2);///
-	}
-	v = mg(v, result);
-	for (std::vector<silicon>::iterator it = v.begin(); it != v.end();) {
-		if (it->group > 0) {
-			finish.pb(*it);
-			it = v.erase(it);
-		} else {
-			if (it->group == -1) {
-				it->group = 0;
-			}
-			++it;
-		}
-	}
-	return v;
-}
-vector<silicon> calc3_cut(vector<silicon> v) {
-	if (rest_cut_num <= 0) return v;
-	vector<silicon> result;
-	result.clear();
-	silicon v0, v1;
-	while (rest_cut_num > 0 && calc_cur_rate() < cut_stop_rate) {
-		if (rest_cut_num <= 0) break;
-		//while (rest_cut_num > 0 && 100.0 * cnt_used / (mg(mg(v, result), finish).size()) < cut_stop_rate) {
-		//while (rest_cut_num > 0) {
-		if (v.size() < 3) {
-			break;
-		}
-		sort(v.begin(), v.end(), cmp_length_greater);
-		v0 = v[0]; v1 = v[1];
-		v.erase(v.begin());
-		v.erase(v.begin());
-		int add = v0.length + v1.length;
-		int need = min_eligible_len - add;
-		for (std::vector<silicon>::iterator it = v.end(); it != v.begin();) {
-			--it;
-			if (check(it->length + add) == 0) {
+// 		for (std::vector<silicon>::iterator it = v.end(); it != v.begin();) {
+// 			--it;
+// 			if (check(it->length + add) == 0) {
+// 				cnt++;
+// 				printf("debug calc4_cut%d\n", cnt);
+// 				cnt_used += 4;
+// 				cnt_rest -= 4;
+// 				v0.group = cnt;
+// 				v1.group = cnt;
+// 				v2.group = cnt;///
+// 				it->group = cnt;
+// 				result.pb(*it);
+// 				v.erase(it);
+// 				break;
+// 			} else if (check(it->length + add) > 0) {
+// 				cnt++;
+// 				cnt_used += 4;
+// 				cnt_rest -= 3;
+// 				rest_cut_num--;
+// 				cnt_cut_num++;
+// 				report_cut();
+// 				v0.group = cnt;
+// 				v1.group = cnt;
+// 				v2.group = cnt;///
+// 				it->cut = 1;
+// 				int rest = it->length - need;
+// 				it->length = need;
+// 				it->group = cnt;
+// 				result.pb(*it);
+// 				it->length = rest;
+// 				if (rest < scrap_len) {//报废
+// 					cnt_scrap++;
+// 					cnt_rest--;
+// 					it->group = inf;
+// 					v.erase(it);
+// 				} else {
+// 					it->group = 0;
+// 				}
+// 				break;
+// 			}
+// 		}
+// 		result.pb(v0);
+// 		result.pb(v1);
+// 		result.pb(v2);///
+// 	}
+// 	v = mg(v, result);
+// 	for (std::vector<silicon>::iterator it = v.begin(); it != v.end();) {
+// 		if (it->group > 0) {
+// 			finish.pb(*it);
+// 			it = v.erase(it);
+// 		} else {
+// 			if (it->group == -1) {
+// 				it->group = 0;
+// 			}
+// 			++it;
+// 		}
+// 	}
+// 	return v;
+// }
+// vector<silicon> calc3_cut(vector<silicon> v) {
+// 	if (rest_cut_num <= 0) return v;
+// 	vector<silicon> result;
+// 	result.clear();
+// 	silicon v0, v1;
+// 	while (rest_cut_num > 0 && calc_cur_rate() < cut_stop_rate) {
+// 		if (rest_cut_num <= 0) break;
+// 		//while (rest_cut_num > 0 && 100.0 * cnt_used / (mg(mg(v, result), finish).size()) < cut_stop_rate) {
+// 		//while (rest_cut_num > 0) {
+// 		if (v.size() < 3) {
+// 			break;
+// 		}
+// 		sort(v.begin(), v.end(), cmp_length_greater);
+// 		v0 = v[0]; v1 = v[1];
+// 		v.erase(v.begin());
+// 		v.erase(v.begin());
+// 		int add = v0.length + v1.length;
+// 		int need = min_eligible_len - add;
+// 		for (std::vector<silicon>::iterator it = v.end(); it != v.begin();) {
+// 			--it;
+// 			if (check(it->length + add) == 0) {
 
-				cnt++;
-				//printf("debug calc3_cut%d\n", cnt);
-				cnt_used += 3;
-				cnt_rest -= 3;
-				v0.group = cnt;
-				v1.group = cnt;
-				it->group = cnt;
-				result.pb(*it);
-				v.erase(it);///
-				break;
-			} else if (check(it->length + add) > 0) {
-				cnt++;
-				cnt_used += 3;
-				cnt_rest -= 3;
-				cnt_rest++;
-				rest_cut_num--;
-				cnt_cut_num++;
-				report_cut();
-				v0.group = cnt;
-				v1.group = cnt;
-				it->cut = 1;
-				int rest = it->length - need;
-				it->length = need;
-				it->group = cnt;
-				result.pb(*it);
-				it->length = rest;
-				if (rest < scrap_len) {//报废
-					cnt_scrap++;
-					cnt_rest--;
-					it->group = inf;
-					v.erase(it);
-				} else {
-					it->group = 0;
-					// std::vector<silicon>::iterator mit = it;
-					// v.erase(it);
-					// for (int i = 1; i < v.size() && mit != v.end(); ++i) { //记忆化
-					// 	for (int j = 0; j < i; ++j) {
-					// 		if (check(v[i].length + v[j].length + mit->length) == 0) {
-					// 			cnt++;
-					// 			cnt_used += 3;
-					// 			printf("debug2%d\n", cnt);
-					// 			v[i].group = cnt;
-					// 			v[j].group = cnt;
-					// 			mit->group = cnt;
-					// 			result.pb(v[i]);
-					// 			result.pb(v[j]);
-					// 			result.pb(*mit);
-					// 			mit = v.end();
-					// 			break;
-					// 		}
-					// 	}
-					// }
-					// if (mit != v.end()) {
-					// 	v.pb(*mit);
-					// }
-				}
-				break;
-			}
-		}
-		result.pb(v0);
-		result.pb(v1);
-	}
-	v = mg(v, result);
-	for (std::vector<silicon>::iterator it = v.begin(); it != v.end();) {
-		if (it->group > 0) {
-			finish.pb(*it);
-			it = v.erase(it);
-		} else {
-			if (it->group == -1) {
-				it->group = 0;
-			}
-			++it;
-		}
-	}
-	// printf("result:\n");
-	// sort(result.begin(), result.end(), cmp_group);
-	// for (int i = 0; i < result.size(); ++i) {
-	// 	//cout << i << " ";
-	// 	result[i].output();
-	// }
-	return v;
-}
+// 				cnt++;
+// 				//printf("debug calc3_cut%d\n", cnt);
+// 				cnt_used += 3;
+// 				cnt_rest -= 3;
+// 				v0.group = cnt;
+// 				v1.group = cnt;
+// 				it->group = cnt;
+// 				result.pb(*it);
+// 				v.erase(it);///
+// 				break;
+// 			} else if (check(it->length + add) > 0) {
+// 				cnt++;
+// 				cnt_used += 3;
+// 				cnt_rest -= 3;
+// 				cnt_rest++;
+// 				rest_cut_num--;
+// 				cnt_cut_num++;
+// 				report_cut();
+// 				v0.group = cnt;
+// 				v1.group = cnt;
+// 				it->cut = 1;
+// 				int rest = it->length - need;
+// 				it->length = need;
+// 				it->group = cnt;
+// 				result.pb(*it);
+// 				it->length = rest;
+// 				if (rest < scrap_len) {//报废
+// 					cnt_scrap++;
+// 					cnt_rest--;
+// 					it->group = inf;
+// 					v.erase(it);
+// 				} else {
+// 					it->group = 0;
+// 					// std::vector<silicon>::iterator mit = it;
+// 					// v.erase(it);
+// 					// for (int i = 1; i < v.size() && mit != v.end(); ++i) { //记忆化
+// 					// 	for (int j = 0; j < i; ++j) {
+// 					// 		if (check(v[i].length + v[j].length + mit->length) == 0) {
+// 					// 			cnt++;
+// 					// 			cnt_used += 3;
+// 					// 			printf("debug2%d\n", cnt);
+// 					// 			v[i].group = cnt;
+// 					// 			v[j].group = cnt;
+// 					// 			mit->group = cnt;
+// 					// 			result.pb(v[i]);
+// 					// 			result.pb(v[j]);
+// 					// 			result.pb(*mit);
+// 					// 			mit = v.end();
+// 					// 			break;
+// 					// 		}
+// 					// 	}
+// 					// }
+// 					// if (mit != v.end()) {
+// 					// 	v.pb(*mit);
+// 					// }
+// 				}
+// 				break;
+// 			}
+// 		}
+// 		result.pb(v0);
+// 		result.pb(v1);
+// 	}
+// 	v = mg(v, result);
+// 	for (std::vector<silicon>::iterator it = v.begin(); it != v.end();) {
+// 		if (it->group > 0) {
+// 			finish.pb(*it);
+// 			it = v.erase(it);
+// 		} else {
+// 			if (it->group == -1) {
+// 				it->group = 0;
+// 			}
+// 			++it;
+// 		}
+// 	}
+// 	// printf("result:\n");
+// 	// sort(result.begin(), result.end(), cmp_group);
+// 	// for (int i = 0; i < result.size(); ++i) {
+// 	// 	//cout << i << " ";
+// 	// 	result[i].output();
+// 	// }
+// 	return v;
+// }
 
 vector<silicon> calc4_pro(vector<silicon> v) {
 	if (v.size() < 4) return v;
 	sort(v.begin(), v.end(), cmp_length);
-	semirand(v);
+	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();  
+    std::shuffle(v.begin(), v.end(), std::default_random_engine(seed));
 	vector<PIIII> comb;
 	comb.clear();
 	int size = v.size();
@@ -684,7 +689,8 @@ vector<silicon> calc4_pro(vector<silicon> v) {
 vector<silicon> calc3_pro(vector<silicon> v) {
 	if (v.size() < 3) return v;
 	sort(v.begin(), v.end(), cmp_length);
-	semirand(v);
+	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();  
+    std::shuffle(v.begin(), v.end(), std::default_random_engine(seed));
 	vector<PIIII> comb;
 	comb.clear();
 	int size = v.size();
@@ -740,126 +746,126 @@ vector<silicon> calc3_pro(vector<silicon> v) {
 	}
 	return v;
 }
-vector<silicon> calc4(vector<silicon> v) {
-	sort(v.begin(), v.end(), cmp_length);
-	vector<PIIII> comb;
-	comb.clear();
-	int size = v.size();
-	for (int i = 2; i < size; ++i) {
-		for (int j = 1; j < i; ++j) {
-			for (int k = 0; k < j; ++k) {
-				comb.pb(mp(v[i].length + v[j].length + v[k].length, i, j, k));
-			}
-		}
-	}
-	sort(comb.begin(), comb.end());
-	for (int p = v.size() - 1; p >= 0; --p) {
-		if (v[p].group != 0) {
-			continue;
-		} else {
-			vector<PIIII>::iterator mit, it_low, it_upper;
-			it_low = lower_bound(comb.begin(), comb.end(), mp(min_eligible_len - v[p].length, 0, 0, 0));
-			it_upper = upper_bound(comb.begin(), comb.end(), mp(max_eligible_len - v[p].length + 1, 0, 0, 0));
-			--it_upper;
-			mit = comb.end();
-			if (it_low != comb.end()) {
-				for (std::vector<PIIII>::iterator it = it_low; it != it_upper && it != comb.end(); ++it) {
-					if (v[it->se].group == 0 && v[it->third].group == 0 && v[it->forth].group == 0 && p != it->se) {
-						if (mit == comb.end() || (it->se < mit->se && check(mit->fi + v[p].length) != 0)) { //启发式
-							mit = it;
-						}
-					}
-				}
-			}
-			if (check(mit->fi + v[p].length) != 0) {
-				mit = comb.end();
-			}
-			if (mit == comb.end()) {
-				v[p].group = -1;
-			} else {
-				cnt++;
-				cnt_used += 4;
-				cnt_rest -= 4;
-				v[p].group = cnt;
-				v[mit->se].group = cnt;
-				v[mit->third].group = cnt;
-				v[mit->forth].group = cnt;
-			}
-		}
-	}
+// vector<silicon> calc4(vector<silicon> v) {
+// 	sort(v.begin(), v.end(), cmp_length);
+// 	vector<PIIII> comb;
+// 	comb.clear();
+// 	int size = v.size();
+// 	for (int i = 2; i < size; ++i) {
+// 		for (int j = 1; j < i; ++j) {
+// 			for (int k = 0; k < j; ++k) {
+// 				comb.pb(mp(v[i].length + v[j].length + v[k].length, i, j, k));
+// 			}
+// 		}
+// 	}
+// 	sort(comb.begin(), comb.end());
+// 	for (int p = v.size() - 1; p >= 0; --p) {
+// 		if (v[p].group != 0) {
+// 			continue;
+// 		} else {
+// 			vector<PIIII>::iterator mit, it_low, it_upper;
+// 			it_low = lower_bound(comb.begin(), comb.end(), mp(min_eligible_len - v[p].length, 0, 0, 0));
+// 			it_upper = upper_bound(comb.begin(), comb.end(), mp(max_eligible_len - v[p].length + 1, 0, 0, 0));
+// 			--it_upper;
+// 			mit = comb.end();
+// 			if (it_low != comb.end()) {
+// 				for (std::vector<PIIII>::iterator it = it_low; it != it_upper && it != comb.end(); ++it) {
+// 					if (v[it->se].group == 0 && v[it->third].group == 0 && v[it->forth].group == 0 && p != it->se) {
+// 						if (mit == comb.end() || (it->se < mit->se && check(mit->fi + v[p].length) != 0)) { //启发式
+// 							mit = it;
+// 						}
+// 					}
+// 				}
+// 			}
+// 			if (check(mit->fi + v[p].length) != 0) {
+// 				mit = comb.end();
+// 			}
+// 			if (mit == comb.end()) {
+// 				v[p].group = -1;
+// 			} else {
+// 				cnt++;
+// 				cnt_used += 4;
+// 				cnt_rest -= 4;
+// 				v[p].group = cnt;
+// 				v[mit->se].group = cnt;
+// 				v[mit->third].group = cnt;
+// 				v[mit->forth].group = cnt;
+// 			}
+// 		}
+// 	}
 
-	for (std::vector<silicon>::iterator it = v.begin(); it != v.end();) {
-		if (it->group > 0) {
-			finish.pb(*it);
-			it = v.erase(it);
-		} else {
-			if (it->group == -1) {
-				it->group = 0;
-			}
-			++it;
-		}
-	}
+// 	for (std::vector<silicon>::iterator it = v.begin(); it != v.end();) {
+// 		if (it->group > 0) {
+// 			finish.pb(*it);
+// 			it = v.erase(it);
+// 		} else {
+// 			if (it->group == -1) {
+// 				it->group = 0;
+// 			}
+// 			++it;
+// 		}
+// 	}
 
-	return v;
-}
-vector<silicon> calc3(vector<silicon> v) {
-	sort(v.begin(), v.end(), cmp_length);
+// 	return v;
+// }
+// vector<silicon> calc3(vector<silicon> v) {
+// 	sort(v.begin(), v.end(), cmp_length);
 
-	vector<PIIII> comb;
-	comb.clear();
-	int size = v.size();
-	for (int i = 1; i < size; ++i) { //记忆化
-		for (int j = 0; j < i; ++j) {
-			comb.pb(mp(v[i].length + v[j].length, i, j));
-		}
-	}
-	sort(comb.begin(), comb.end());
-	for (int p = v.size() - 1; p >= 0; --p) {
-		if (v[p].group != 0) {
-			continue;
-		} else {
-			vector<PIIII>::iterator mit, it_low, it_upper;
-			it_low = lower_bound(comb.begin(), comb.end(), mp(min_eligible_len - v[p].length, 0, 0));
-			it_upper = upper_bound(comb.begin(), comb.end(), mp(max_eligible_len - v[p].length + 1, 0, 0));
-			--it_upper;
-			mit = comb.end();
-			if (it_low != comb.end()) {
-				for (std::vector<PIIII>::iterator it = it_low; it != it_upper && it != comb.end(); ++it) {
-					if (v[it->se].group == 0 && v[it->third].group == 0 && p != it->se) {
-						if (mit == comb.end() || (it->se < mit->se && check(it->fi + v[p].length) == 0)) { //启发式
-							mit = it;
-						}
-					}
-				}
-			}
-			if (check(mit->fi + v[p].length) != 0) {
-				mit = comb.end();
-			}
-			if (mit == comb.end()) {
-				v[p].group = -1;
-			} else {
-				cnt++;
-				cnt_used += 3;
-				cnt_rest -= 3;
-				v[p].group = cnt;
-				v[mit->se].group = cnt;
-				v[mit->third].group = cnt;
-			}
-		}
-	}
-	for (std::vector<silicon>::iterator it = v.begin(); it != v.end();) {
-		if (it->group > 0) {
-			finish.pb(*it);
-			it = v.erase(it);
-		} else {
-			if (it->group == -1) {
-				it->group = 0;
-			}
-			++it;
-		}
-	}
-	return v;
-}
+// 	vector<PIIII> comb;
+// 	comb.clear();
+// 	int size = v.size();
+// 	for (int i = 1; i < size; ++i) { //记忆化
+// 		for (int j = 0; j < i; ++j) {
+// 			comb.pb(mp(v[i].length + v[j].length, i, j));
+// 		}
+// 	}
+// 	sort(comb.begin(), comb.end());
+// 	for (int p = v.size() - 1; p >= 0; --p) {
+// 		if (v[p].group != 0) {
+// 			continue;
+// 		} else {
+// 			vector<PIIII>::iterator mit, it_low, it_upper;
+// 			it_low = lower_bound(comb.begin(), comb.end(), mp(min_eligible_len - v[p].length, 0, 0));
+// 			it_upper = upper_bound(comb.begin(), comb.end(), mp(max_eligible_len - v[p].length + 1, 0, 0));
+// 			--it_upper;
+// 			mit = comb.end();
+// 			if (it_low != comb.end()) {
+// 				for (std::vector<PIIII>::iterator it = it_low; it != it_upper && it != comb.end(); ++it) {
+// 					if (v[it->se].group == 0 && v[it->third].group == 0 && p != it->se) {
+// 						if (mit == comb.end() || (it->se < mit->se && check(it->fi + v[p].length) == 0)) { //启发式
+// 							mit = it;
+// 						}
+// 					}
+// 				}
+// 			}
+// 			if (check(mit->fi + v[p].length) != 0) {
+// 				mit = comb.end();
+// 			}
+// 			if (mit == comb.end()) {
+// 				v[p].group = -1;
+// 			} else {
+// 				cnt++;
+// 				cnt_used += 3;
+// 				cnt_rest -= 3;
+// 				v[p].group = cnt;
+// 				v[mit->se].group = cnt;
+// 				v[mit->third].group = cnt;
+// 			}
+// 		}
+// 	}
+// 	for (std::vector<silicon>::iterator it = v.begin(); it != v.end();) {
+// 		if (it->group > 0) {
+// 			finish.pb(*it);
+// 			it = v.erase(it);
+// 		} else {
+// 			if (it->group == -1) {
+// 				it->group = 0;
+// 			}
+// 			++it;
+// 		}
+// 	}
+// 	return v;
+// }
 vector<vector<silicon> > tot_db;
 vector<int> tot_cnt_rest, tot_cnt_used, tot_cnt_scrap;
 void report(vector<silicon> a, int p) {
@@ -1026,50 +1032,50 @@ vector<silicon> calc(vector<silicon> db) {
 	int flag = 6;
 	int lg = 1;
 	if (flag == 1) {
-		db = calc3(db);
-		db = calc4(db);
-		db = calc3_cut(db);
-		db = calc4_cut(db);
+		// db = calc3(db);
+		// db = calc4(db);
+		// db = calc3_cut(db);
+		// db = calc4_cut(db);
 	} else if (flag == 2) {
-		db = calc3_pro(db);
-		db = calc4_pro(db);
-		db = calc3_cut(db);
-		db = calc4_cut(db);
+		// db = calc3_pro(db);
+		// db = calc4_pro(db);
+		// db = calc3_cut(db);
+		// db = calc4_cut(db);
 	} else if (flag == 3) {
-		db = calc3_pro(db);
-		db = calc4_pro(db);
-		db = calc3_cut_pro(db);
-		db = calc4_cut_pro(db);
+		// db = calc3_pro(db);
+		// db = calc4_pro(db);
+		// db = calc3_cut_pro(db);
+		// db = calc4_cut_pro(db);
 	} else if (flag == 4) {
-		db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
-		db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
-		db = calc4_cut_pro(db); // printf("calc4_cut_pro-%d\n", cnt);
-		db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
-		db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
-		db = calc3_cut_pro(db); // printf("calc3_cut_pro-%d\n", cnt);
-		db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
-		db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
-		db = calc4_cut_pro(db); // printf("calc4_cut_pro-%d\n", cnt);
-		db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
-		db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
-		db = calc3_cut_pro(db); // printf("calc3_cut_pro-%d\n", cnt);
-		db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
-		db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
+		// db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
+		// db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
+		// db = calc4_cut_pro(db); // printf("calc4_cut_pro-%d\n", cnt);
+		// db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
+		// db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
+		// db = calc3_cut_pro(db); // printf("calc3_cut_pro-%d\n", cnt);
+		// db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
+		// db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
+		// db = calc4_cut_pro(db); // printf("calc4_cut_pro-%d\n", cnt);
+		// db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
+		// db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
+		// db = calc3_cut_pro(db); // printf("calc3_cut_pro-%d\n", cnt);
+		// db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
+		// db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
 	} else if (flag == 5) {
-		db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
-		db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
-		db = calc3_cut_pro(db); // printf("calc3_cut_pro-%d\n", cnt);
 		// db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
 		// db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
-		db = calc4_cut_pro(db); // printf("calc4_pro-%d\n", cnt);
-		// db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
-		// db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
-		db = calc3_cut_pro(db); // printf("calc3_cut_pro-%d\n", cnt);
-		// db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
-		// db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
-		db = calc4_cut_pro(db); // printf("calc4_cut_pro-%d\n", cnt);
-		// db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
-		// db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
+		// db = calc3_cut_pro(db); // printf("calc3_cut_pro-%d\n", cnt);
+		// // db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
+		// // db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
+		// db = calc4_cut_pro(db); // printf("calc4_pro-%d\n", cnt);
+		// // db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
+		// // db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
+		// db = calc3_cut_pro(db); // printf("calc3_cut_pro-%d\n", cnt);
+		// // db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
+		// // db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
+		// db = calc4_cut_pro(db); // printf("calc4_cut_pro-%d\n", cnt);
+		// // db = calc3_pro(db); // printf("calc3_pro-%d\n", cnt);
+		// // db = calc4_pro(db); // printf("calc4_pro-%d\n", cnt);
 	} else if (flag == 6) {
 		db = calc3_pro(db);// printf("calc3_pro-%d\n", cnt);
 		db = calc4_pro(db);// printf("calc4_pro-%d\n", cnt);
@@ -1080,13 +1086,13 @@ vector<silicon> calc(vector<silicon> db) {
 		// 	db = calc4_cut_pro(db); if(lg) printf("(3)-%d\n", cnt);
 		// 	db = calc4_cut_pro(db); if(lg) printf("(3)-%d\n", cnt);
 		// }
-		
-		db = calc3_cut_pro(db); if(lg) printf("(3)-%d\n", cnt);
 
-		db = calc4_cut_pro(db); if(lg) printf("(4)-%d\n", cnt);
-		db = calc3_cut_pro(db); if(lg) printf("(3)-%d\n", cnt);
-		db = calc4_cut_pro(db); if(lg) printf("(4)-%d\n", cnt);
-		db = calc3_cut_pro(db); if(lg) printf("(3)-%d\n", cnt);
+		db = calc3_cut_pro(db); if (lg) printf("(3)-%d\n", cnt);
+
+		db = calc4_cut_pro(db); if (lg) printf("(4)-%d\n", cnt);
+		db = calc3_cut_pro(db); if (lg) printf("(3)-%d\n", cnt);
+		db = calc4_cut_pro(db); if (lg) printf("(4)-%d\n", cnt);
+		db = calc3_cut_pro(db); if (lg) printf("(3)-%d\n", cnt);
 	}
 	return mg(db, finish);
 }
@@ -1209,7 +1215,7 @@ int main(int argc, char const *argv[]) {
 		}
 
 	}
-	
+
 	remove(tmpname.c_str());
 	remove(runname.c_str());
 	//freopen("result.out", "w", stdout);
