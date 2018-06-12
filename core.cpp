@@ -66,6 +66,7 @@ int cnt_scrap;//当前报废
 int cnt_cut_num;//当前截断数
 double cut_stop_rate;//目标匹配率
 int total;//原始总数
+int enhance_mode = 1;
 
 struct silicon {
 	void input() {
@@ -277,9 +278,12 @@ void report_cut() {
 vector<silicon> calc4_cut_pro(vector<silicon> v) {
 	if (rest_cut_num <= 0) return v;
 	if (v.size() < 4) return v;
-	//sort(v.begin(), v.end(), cmp_length);
-	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();  
-    std::shuffle(v.begin(), v.end(), std::default_random_engine(seed));
+	if (enhance_mode) {
+		unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+		std::shuffle(v.begin(), v.end(), std::default_random_engine(seed));
+	} else {
+		sort(v.begin(), v.end(), cmp_length);
+	}
 	vector<PIIII> comb;
 	comb.clear();
 	int size = v.size();
@@ -359,9 +363,12 @@ vector<silicon> calc4_cut_pro(vector<silicon> v) {
 vector<silicon> calc3_cut_pro(vector<silicon> v) {
 	if (rest_cut_num <= 0) return v;
 	if (v.size() < 4) return v;
-	//sort(v.begin(), v.end(), cmp_length);
-	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();  
-    std::shuffle(v.begin(), v.end(), std::default_random_engine(seed));
+	if (enhance_mode) {
+		unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+		std::shuffle(v.begin(), v.end(), std::default_random_engine(seed));
+	} else {
+		sort(v.begin(), v.end(), cmp_length);
+	}
 	vector<PIIII> comb;
 	comb.clear();
 	int size = v.size();
@@ -620,9 +627,12 @@ vector<silicon> calc3_cut_pro(vector<silicon> v) {
 
 vector<silicon> calc4_pro(vector<silicon> v) {
 	if (v.size() < 4) return v;
-	sort(v.begin(), v.end(), cmp_length);
-	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();  
-    std::shuffle(v.begin(), v.end(), std::default_random_engine(seed));
+	if (enhance_mode) {
+		unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+		std::shuffle(v.begin(), v.end(), std::default_random_engine(seed));
+	} else {
+		sort(v.begin(), v.end(), cmp_length);
+	}
 	vector<PIIII> comb;
 	comb.clear();
 	int size = v.size();
@@ -688,9 +698,12 @@ vector<silicon> calc4_pro(vector<silicon> v) {
 
 vector<silicon> calc3_pro(vector<silicon> v) {
 	if (v.size() < 3) return v;
-	sort(v.begin(), v.end(), cmp_length);
-	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();  
-    std::shuffle(v.begin(), v.end(), std::default_random_engine(seed));
+	if (enhance_mode) {
+		unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+		std::shuffle(v.begin(), v.end(), std::default_random_engine(seed));
+	} else {
+		sort(v.begin(), v.end(), cmp_length);
+	}
 	vector<PIIII> comb;
 	comb.clear();
 	int size = v.size();
@@ -1087,12 +1100,11 @@ vector<silicon> calc(vector<silicon> db) {
 		// 	db = calc4_cut_pro(db); if(lg) printf("(3)-%d\n", cnt);
 		// }
 
-		db = calc3_cut_pro(db); if (lg) printf("(3)-%d\n", cnt);
-
-		db = calc4_cut_pro(db); if (lg) printf("(4)-%d\n", cnt);
-		db = calc3_cut_pro(db); if (lg) printf("(3)-%d\n", cnt);
-		db = calc4_cut_pro(db); if (lg) printf("(4)-%d\n", cnt);
-		db = calc3_cut_pro(db); if (lg) printf("(3)-%d\n", cnt);
+		db = calc3_cut_pro(db); //if (lg) printf("(3)-%d\n", cnt);
+		db = calc4_cut_pro(db); //if (lg) printf("(4)-%d\n", cnt);
+		db = calc3_cut_pro(db); //if (lg) printf("(3)-%d\n", cnt);
+		//db = calc4_cut_pro(db); //if (lg) printf("(4)-%d\n", cnt);
+		//db = calc3_cut_pro(db); //if (lg) printf("(3)-%d\n", cnt);
 	}
 	return mg(db, finish);
 }
